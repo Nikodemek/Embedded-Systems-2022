@@ -183,33 +183,40 @@ proc(void* arg)
     for(;;) {
         tU8 keyPressed;
 
-        lcdClrscr();
-        move(&ball, Up);
-        lcdRect(ball.xPos, ball.yPos, ball.radius, ball.radius, 0xFF);
+        moveBall(&ball, Up);
     }
 
   }
 }
 
+static void 
+overdrawBall(struct Ball* ball, int color)
+{
+  lcdRect(ball->xPos, ball->yPos, ball->radius, ball->radius, color);
+}
+
 static void
-move(struct Ball *ball, enum Direction dir) {
-    switch (dir)
-    {
-        case Up:
-            ball->yPos = ball->yPos + ball->speed;
-            break;
-        case Down:
-            ball->yPos = ball->yPos - ball->speed;
-            break;
-        case Left:
-            ball->xPos = ball->xPos - ball->speed;
-            break;
-        case Right:
-            ball->xPos = ball->xPos + ball->speed;
-            break;
-        default:
-            break;
-    }
+moveBall(struct Ball* ball, enum Direction dir)
+{
+  overdrawBall(ball, 0x00);
+  switch (dir)
+  {
+      case Up:
+          ball->yPos = ball->yPos + ball->speed;
+          break;
+      case Down:
+          ball->yPos = ball->yPos - ball->speed;
+          break;
+      case Left:
+          ball->xPos = ball->xPos - ball->speed;
+          break;
+      case Right:
+          ball->xPos = ball->xPos + ball->speed;
+          break;
+      default:
+          break;
+  }
+  overdrawBall(ball, 0xFF);
 }
 
 /*****************************************************************************
