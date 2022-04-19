@@ -57,7 +57,19 @@ static tU8 pid;
 static void proc(void* arg);
 static void initProc(void* arg);
 
+struct Ball {
+    int xPos;
+    int yPos;
+    int radius;
+    int speed;
+};
 
+enum Direction {
+    Up,
+    Down,
+    Left,
+    Right
+};
 
 /************************************************************************
  * @Description: opóźnienie wyrażone w liczbie sekund
@@ -159,7 +171,45 @@ proc(void* arg)
 
     lcdClrscr();
 
+    struct Ball ball;
+    ball.xPos = 10;
+    ball.yPos = 10;
+    ball.speed = 5;
+    ball.radius = 4;
+    lcdRect(ball.xPos, ball.yPos, ball.radius, ball.radius, 0xFF);
+
+    initKeyProc();
+
+    for(;;) {
+        tU8 keyPressed;
+
+        lcdClrscr();
+        move(&ball, Up);
+        lcdRect(ball.xPos, ball.yPos, ball.radius, ball.radius, 0xFF);
+    }
+
   }
+}
+
+static void
+move(struct Ball *ball, enum Direction dir) {
+    switch (dir)
+    {
+        case Up:
+            ball->yPos = ball->yPos + ball->speed;
+            break;
+        case Down:
+            ball->yPos = ball->yPos - ball->speed;
+            break;
+        case Left:
+            ball->xPos = ball->xPos - ball->speed;
+            break;
+        case Right:
+            ball->xPos = ball->xPos + ball->speed;
+            break;
+        default:
+            break;
+    }
 }
 
 /*****************************************************************************
