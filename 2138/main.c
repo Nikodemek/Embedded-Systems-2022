@@ -44,6 +44,12 @@
 #include "timer.h"
 #include "VIC.h"
 
+#include "key.h"
+#include "i2c.h"
+#include "pca9532.h"
+
+
+
 #include "Common_Def.h"
 #include <stdio.h>
 
@@ -171,17 +177,18 @@ proc(void* arg)
 
     lcdClrscr();
 
-    struct Ball ball;
-    ball.xPos = 10;
-    ball.yPos = 10;
-    ball.speed = 5;
-    ball.radius = 4;
-    lcdRect(ball.xPos, ball.yPos, ball.radius, ball.radius, 0xFF);
-
     initKeyProc();
 
     for(;;) {
         tU8 keyPressed;
+        keyPressed = checkKey();
+
+        if(keyPressed != KEY_NOTHING) {
+            if (keyPressed == KEY_CENTER)
+            {
+                playWithTheBall();
+            }
+        }
 
         lcdClrscr();
         move(&ball, Up);
@@ -209,6 +216,58 @@ move(struct Ball *ball, enum Direction dir) {
             break;
         default:
             break;
+    }
+}
+
+static Direction
+checkDirection(tU8 joyDirection) {
+    switch (joyDirection)
+    {
+        case KEY_UP:
+            return Up;
+        case KEY_DOWN:
+            return Down;
+        case KEY_LEFT:
+            return Left;
+        case KEY_RIGHT:
+            return Right;
+        default:
+            break;
+    }
+}
+
+static tS8 direction = 0;
+
+static void
+playWithTheBall(void) {
+    struct Ball ball;
+    ball.xPos = 10;
+    ball.yPos = 10;
+    ball.speed = 5;
+    ball.radius = 4;
+    lcdRect(ball.xPos, ball.yPos, ball.radius, ball.radius, 0xFF);
+
+    tU8 keypress;
+
+    for(;;) {
+        keypress = checkKey();
+        if (keypress != KEY_NOTHING)
+        {
+            if (keypress == KEY_CENTER)
+                break;
+          
+            if ((keypress == KEY_UP)    ||
+                (keypress == KEY_RIGHT) ||
+                (keypress == KEY_DOWN)  ||
+                (keypress == KEY_LEFT))
+            direction = keypress;
+        }
+
+        if (direction != 0)
+        {
+            struct Direction dir = checkDirection(direction)
+            move(&ball, dir);
+        }  
     }
 }
 
