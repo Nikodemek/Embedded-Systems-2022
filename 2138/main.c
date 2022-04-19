@@ -54,14 +54,23 @@
 #include <stdio.h>
 
 #define PROC_STACK_SIZE 1024
+#define PROC1_STACK_SIZE 1024
 #define INIT_STACK_SIZE  400
 
 static tU8 procStack[PROC_STACK_SIZE];
+static tU8 proc1Stack[PROC1_STACK_SIZE];
 static tU8 initStack[INIT_STACK_SIZE];
 static tU8 pid;
+static tU8 pid1;
 
 static void proc(void* arg);
 static void initProc(void* arg);
+static void drawWelcome(void);
+static void overdrawBall(struct Ball* ball, int color);
+static void moveBall(struct Ball* ball, tU8 joyDirection);
+static void playWithTheBall(void);
+
+static tS8 direction = KEY_NOTHING;
 
 struct Ball {
     int xPos;
@@ -140,6 +149,29 @@ void main(void)
   return 0;
 } 
 
+
+static void
+proc1(void) {
+    tU8 pca9532Present = FALSE;
+    
+    osSleep(50);
+
+    //check if connection with PCA9532
+    pca9532Present = pca9532Init();
+    tU8 pin = 0;
+  
+	for(;;)
+	{
+	    if (TRUE == pca9532Present)
+	    {
+            setPca9532Pin(i, 0);
+            sdelay(1);
+            setPca9532Pin(i, 1);
+            i = (i + 1) % 16;
+        }
+    }
+}
+
 /*****************************************************************************
  *
  * Description:
@@ -162,21 +194,9 @@ proc(void* arg)
   if (TRUE == pca9532Present)
   {
     lcdInit();
-    lcdColor(0xff,0x00);
-    lcdClrscr();
-    lcdGotoxy(16,66);
-    lcdPuts("Welcome to");
-    lcdGotoxy(20,80);
-    lcdPuts("Ball The Game");
-    lcdGotoxy(0,96);
-    lcdPuts(":)");
-    lcdGotoxy(8,112);
-    lcdPuts("(C)2022 (0.1.0v))");
+
+    drawWelcome();
     
-    osSleep(100);
-
-    lcdClrscr();
-
     initKeyProc();
 
     for(;;) {
@@ -196,6 +216,20 @@ proc(void* arg)
   }
 }
 
+static void
+drawWelcome(void) (
+    lcdColor(0xff,0x00);
+    lcdClrscr();
+    lcdGotoxy(16,66);
+    lcdPuts("Welcome to");
+    lcdGotoxy(20,80);
+    lcdPuts("Ball The Game");
+    lcdGotoxy(0,96);
+    lcdPuts(":)");
+    lcdGotoxy(8,112);
+    lcdPuts("(C)2022 (0.1.0v))");
+)
+
 static void 
 overdrawBall(struct Ball* ball, int color)
 {
@@ -203,21 +237,21 @@ overdrawBall(struct Ball* ball, int color)
 }
 
 static void
-moveBall(struct Ball* ball, enum Direction dir)
+moveBall(struct Ball* ball, tU8 joyDirection)
 {
   overdrawBall(ball, 0x00);
   switch (dir)
   {
-      case Up:
+      case KEY_UP:
           ball->yPos = ball->yPos + ball->speed;
           break;
-      case Down:
+      case KEY_DOWN:
           ball->yPos = ball->yPos - ball->speed;
           break;
-      case Left:
+      case KEY_LEFT:
           ball->xPos = ball->xPos - ball->speed;
           break;
-      case Right:
+      case KEY_RIGHT:
           ball->xPos = ball->xPos + ball->speed;
           break;
       default:
@@ -225,25 +259,6 @@ moveBall(struct Ball* ball, enum Direction dir)
   }
   overdrawBall(ball, 0xFF);
 }
-
-static Direction
-checkDirection(tU8 joyDirection) {
-    switch (joyDirection)
-    {
-        case KEY_UP:
-            return Up;
-        case KEY_DOWN:
-            return Down;
-        case KEY_LEFT:
-            return Left;
-        case KEY_RIGHT:
-            return Right;
-        default:
-            break;
-    }
-}
-
-static tS8 direction = 0;
 
 static void
 playWithTheBall(void) {
@@ -256,12 +271,16 @@ playWithTheBall(void) {
 
     tU8 keypress;
 
+    lcdClrscr();
+
     for(;;) {
         keypress = checkKey();
         if (keypress != KEY_NOTHING)
         {
-            if (keypress == KEY_CENTER)
+            if (keypress == KEY_CENTER) {
+                direction = KEY_NOTHING;
                 break;
+            }
           
             if ((keypress == KEY_UP)    ||
                 (keypress == KEY_RIGHT) ||
@@ -270,10 +289,10 @@ playWithTheBall(void) {
             direction = keypress;
         }
 
-        if (direction != 0)
+        if (direction != KEY_NOTHING)
         {
-            struct Direction dir = checkDirection(direction)
-            move(&ball, dir);
+            move(&ball, direction);
+            direction = KEY_NOTHING;
         }  
     }
 }
@@ -296,6 +315,8 @@ initProc(void* arg)
   i2cInit();  //initialize I2C
   osCreateProcess(proc, procStack, PROC_STACK_SIZE, &pid, 3, NULL, &error);
   osStartProcess(pid, &error);
+  osCreateProcess(proc1, proc1Stack, PROC1_STACK_SIZE, &pid1, 3, NULL, &error);
+  osStartProcess(pid1, &error);
 
   osDeleteProcess();
 }
