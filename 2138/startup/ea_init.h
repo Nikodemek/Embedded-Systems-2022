@@ -10,14 +10,12 @@
 *     1.0.0
 *
 * NOTE:
-* Change log:
-*	1.12.2016: MM: Modified for C++ support
 *
 *
 ******************************************************************************/
 
-#ifndef _PRINTF_INIT_H_
-#define _PRINTF_INIT_H_
+#ifndef _EA_INIT_H_
+#define _EA_INIT_H_
 
 #define ENABLE_INTERRUPTS   asm volatile (                      \
                                           "mrs r3,cpsr;"        \
@@ -43,12 +41,6 @@
 *     Initializes the evaluation board environment
 * 
 *******************************************************************************/
-#ifdef __cplusplus  
-extern "C" {
-#endif
-extern void printf_init (void);
-#ifdef __cplusplus  
-}
-#endif
+extern void eaInit (void);
 
 #endif

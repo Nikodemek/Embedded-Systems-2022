@@ -1,0 +1,1923 @@
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s 			page 1
+
+
+   1              		.code	16
+   2              		.file	"key.c"
+   3              		.section	.debug_abbrev,"",%progbits
+   4              	.Ldebug_abbrev0:
+   5              		.section	.debug_info,"",%progbits
+   6              	.Ldebug_info0:
+   7              		.section	.debug_line,"",%progbits
+   8              	.Ldebug_line0:
+   9 0000 BD000000 		.text
+   9      02005000 
+   9      00000201 
+   9      FB0E0D00 
+   9      01010101 
+  10              	.Ltext0:
+  11              		.align	2
+  12              		.global	getKeys
+  13              		.code 16
+  14              		.thumb_func
+  15              		.type	getKeys, %function
+  16              	getKeys:
+  17              	.LFB2:
+  18              		.file 1 "key.c"
+   1:key.c         **** /******************************************************************************
+   2:key.c         ****  *
+   3:key.c         ****  * Copyright:
+   4:key.c         ****  *    (C) 2006 Embedded Artists AB
+   5:key.c         ****  *
+   6:key.c         ****  * File:
+   7:key.c         ****  *    key.c
+   8:key.c         ****  *
+   9:key.c         ****  * Description:
+  10:key.c         ****  *    Implements sampling and handling of joystick key.
+  11:key.c         ****  *
+  12:key.c         ****  *****************************************************************************/
+  13:key.c         **** 
+  14:key.c         **** /******************************************************************************
+  15:key.c         ****  * Includes
+  16:key.c         ****  *****************************************************************************/
+  17:key.c         **** #include "../pre_emptive_os/api/osapi.h"
+  18:key.c         **** #include "../pre_emptive_os/api/general.h"
+  19:key.c         **** #include <printf_P.h>
+  20:key.c         **** #include "key.h"
+  21:key.c         **** #include <lpc2xxx.h>
+  22:key.c         **** 
+  23:key.c         **** 
+  24:key.c         **** /******************************************************************************
+  25:key.c         ****  * Typedefs and defines
+  26:key.c         ****  *****************************************************************************/
+  27:key.c         **** #define FIRST_REPEAT  4
+  28:key.c         **** #define SECOND_REPEAT 3
+  29:key.c         **** 
+  30:key.c         **** #define KEYPROC_STACK_SIZE 300
+  31:key.c         **** 
+  32:key.c         **** #define KEYPIN_CENTER 0x00000100
+  33:key.c         **** #define KEYPIN_UP     0x00000400
+  34:key.c         **** #define KEYPIN_DOWN   0x00001000
+  35:key.c         **** #define KEYPIN_LEFT   0x00000200 
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s 			page 2
+
+
+  36:key.c         **** #define KEYPIN_RIGHT  0x00000800
+  37:key.c         **** 
+  38:key.c         **** #if 0
+  39:key.c         ****       //check if P0.8 center-key is pressed
+  40:key.c         ****       if ((IOPIN & 0x00000100) == 0)
+  41:key.c         **** 
+  42:key.c         ****       //check if P0.9 left-key is pressed
+  43:key.c         ****       else if ((IOPIN & 0x00000200) == 0)
+  44:key.c         **** 
+  45:key.c         ****       //check if P0.10 up-key is pressed
+  46:key.c         ****       else if ((IOPIN & 0x00000400) == 0)
+  47:key.c         **** 
+  48:key.c         ****       //check if P0.11 right-key is pressed
+  49:key.c         ****       else if ((IOPIN & 0x00000800) == 0)
+  50:key.c         **** 
+  51:key.c         ****       //check if P0.12 down-key is pressed
+  52:key.c         ****       else if ((IOPIN & 0x00001000) == 0)
+  53:key.c         **** #endif
+  54:key.c         **** 
+  55:key.c         **** /*****************************************************************************
+  56:key.c         ****  * Local variables
+  57:key.c         ****  ****************************************************************************/
+  58:key.c         **** static tU8 centerReleased = TRUE;
+  59:key.c         **** static tU8 keyUpReleased = TRUE;
+  60:key.c         **** static tU8 keyDownReleased = TRUE;
+  61:key.c         **** static tU8 keyLeftReleased = TRUE;
+  62:key.c         **** static tU8 keyRightReleased = TRUE;
+  63:key.c         **** static tU8 centerKeyCnt;
+  64:key.c         **** static tU8 upKeyCnt;
+  65:key.c         **** static tU8 downKeyCnt;
+  66:key.c         **** static tU8 leftKeyCnt;
+  67:key.c         **** static tU8 rightKeyCnt;
+  68:key.c         **** 
+  69:key.c         **** static volatile tU8 activeKey = KEY_NOTHING;
+  70:key.c         **** static volatile tU8 activeKey2 = KEY_NOTHING;
+  71:key.c         **** 
+  72:key.c         **** static tU8 keyProcStack[KEYPROC_STACK_SIZE];
+  73:key.c         **** static tU8 keyProcPid;
+  74:key.c         **** 
+  75:key.c         **** 
+  76:key.c         **** 
+  77:key.c         **** /*****************************************************************************
+  78:key.c         ****  *
+  79:key.c         ****  * Description:
+  80:key.c         ****  *    Get current state of joystick switch
+  81:key.c         ****  *
+  82:key.c         ****  ****************************************************************************/
+  83:key.c         **** tU8
+  84:key.c         **** getKeys(void)
+  85:key.c         **** {
+  19              		.loc 1 85 0
+  86:key.c         ****   tU8 readKeys = KEY_NOTHING;
+  87:key.c         **** 
+  88:key.c         ****   if ((IOPIN & KEYPIN_CENTER) == 0) readKeys |= KEY_CENTER;
+  20              		.loc 1 88 0
+  21 0000 124B     		ldr	r3, .L14
+  22 0002 1B68     		ldr	r3, [r3]
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s 			page 3
+
+
+  23              		.loc 1 85 0
+  24              		@ lr needed for prologue
+  25              		.loc 1 88 0
+  26 0004 D905     		lsl	r1, r3, #23
+  27 0006 01D4     		bmi	.L2
+  28 0008 1020     		mov	r0, #16
+  29              	.LVL0:
+  30 000a 00E0     		b	.L4
+  31              	.LVL1:
+  32              	.L2:
+  33 000c 0020     		mov	r0, #0
+  34              	.LVL2:
+  35              	.L4:
+  89:key.c         ****   if ((IOPIN & KEYPIN_UP) == 0)     readKeys |= KEY_UP;
+  36              		.loc 1 89 0
+  37 000e 0F4A     		ldr	r2, .L14
+  38 0010 1368     		ldr	r3, [r2]
+  39 0012 5905     		lsl	r1, r3, #21
+  40 0014 03D4     		bmi	.L5
+  41 0016 0123     		mov	r3, #1
+  42 0018 0343     		orr	r3, r3, r0
+  43 001a 1B06     		lsl	r3, r3, #24
+  44 001c 180E     		lsr	r0, r3, #24
+  45              	.L5:
+  90:key.c         ****   if ((IOPIN & KEYPIN_DOWN) == 0)   readKeys |= KEY_DOWN;
+  46              		.loc 1 90 0
+  47 001e 1368     		ldr	r3, [r2]
+  48 0020 D904     		lsl	r1, r3, #19
+  49 0022 03D4     		bmi	.L7
+  50 0024 0423     		mov	r3, #4
+  51 0026 0343     		orr	r3, r3, r0
+  52 0028 1B06     		lsl	r3, r3, #24
+  53 002a 180E     		lsr	r0, r3, #24
+  54              	.L7:
+  91:key.c         ****   if ((IOPIN & KEYPIN_LEFT) == 0)   readKeys |= KEY_LEFT;
+  55              		.loc 1 91 0
+  56 002c 1368     		ldr	r3, [r2]
+  57 002e 9905     		lsl	r1, r3, #22
+  58 0030 03D4     		bmi	.L9
+  59 0032 0823     		mov	r3, #8
+  60 0034 0343     		orr	r3, r3, r0
+  61 0036 1B06     		lsl	r3, r3, #24
+  62 0038 180E     		lsr	r0, r3, #24
+  63              	.L9:
+  92:key.c         ****   if ((IOPIN & KEYPIN_RIGHT) == 0)  readKeys |= KEY_RIGHT;
+  64              		.loc 1 92 0
+  65 003a 1368     		ldr	r3, [r2]
+  66 003c 1A05     		lsl	r2, r3, #20
+  67 003e 03D4     		bmi	.L11
+  68 0040 0223     		mov	r3, #2
+  69 0042 0343     		orr	r3, r3, r0
+  70 0044 1B06     		lsl	r3, r3, #24
+  71 0046 180E     		lsr	r0, r3, #24
+  72              	.L11:
+  73              	.LVL3:
+  93:key.c         **** 
+  94:key.c         ****   return readKeys;
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s 			page 4
+
+
+  95:key.c         **** }
+  74              		.loc 1 95 0
+  75              		@ sp needed for prologue
+  76 0048 7047     		bx	lr
+  77              	.L15:
+  78 004a 0000     		.align	2
+  79              	.L14:
+  80 004c 008002E0 		.word	-536707072
+  81              	.LFE2:
+  82              		.size	getKeys, .-getKeys
+  83              		.align	2
+  84              		.global	checkKey
+  85              		.code 16
+  86              		.thumb_func
+  87              		.type	checkKey, %function
+  88              	checkKey:
+  89              	.LFB3:
+  96:key.c         **** 
+  97:key.c         **** /*****************************************************************************
+  98:key.c         ****  *
+  99:key.c         ****  * Description:
+ 100:key.c         ****  *    Function to check if any key press has been detected
+ 101:key.c         ****  *
+ 102:key.c         ****  ****************************************************************************/
+ 103:key.c         **** tU8
+ 104:key.c         **** checkKey(void)
+ 105:key.c         **** {
+  90              		.loc 1 105 0
+ 106:key.c         ****   tU8 retVal = activeKey;
+  91              		.loc 1 106 0
+  92 0050 024B     		ldr	r3, .L18
+  93 0052 1878     		ldrb	r0, [r3]
+ 107:key.c         ****   activeKey = KEY_NOTHING;
+  94              		.loc 1 107 0
+  95 0054 0022     		mov	r2, #0
+  96              		.loc 1 105 0
+  97              		@ lr needed for prologue
+  98              		.loc 1 107 0
+  99 0056 1A70     		strb	r2, [r3]
+ 108:key.c         ****   return retVal;
+ 109:key.c         **** }
+ 100              		.loc 1 109 0
+ 101              		@ sp needed for prologue
+ 102 0058 7047     		bx	lr
+ 103              	.L19:
+ 104 005a 0000     		.align	2
+ 105              	.L18:
+ 106 005c 00000000 		.word	activeKey
+ 107              	.LFE3:
+ 108              		.size	checkKey, .-checkKey
+ 109              		.align	2
+ 110              		.global	checkKey2
+ 111              		.code 16
+ 112              		.thumb_func
+ 113              		.type	checkKey2, %function
+ 114              	checkKey2:
+ 115              	.LFB4:
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s 			page 5
+
+
+ 110:key.c         **** 
+ 111:key.c         **** /*****************************************************************************
+ 112:key.c         ****  *
+ 113:key.c         ****  * Description:
+ 114:key.c         ****  *    Function to check current (instantaneous) key state
+ 115:key.c         ****  *
+ 116:key.c         ****  ****************************************************************************/
+ 117:key.c         **** tU8
+ 118:key.c         **** checkKey2(void)
+ 119:key.c         **** {
+ 116              		.loc 1 119 0
+ 120:key.c         ****   return activeKey2;
+ 117              		.loc 1 120 0
+ 118 0060 014B     		ldr	r3, .L22
+ 119 0062 1878     		ldrb	r0, [r3]
+ 120              		.loc 1 119 0
+ 121              		@ lr needed for prologue
+ 121:key.c         **** }
+ 122              		.loc 1 121 0
+ 123              		@ sp needed for prologue
+ 124 0064 7047     		bx	lr
+ 125              	.L23:
+ 126 0066 0000     		.align	2
+ 127              	.L22:
+ 128 0068 01000000 		.word	activeKey2
+ 129              	.LFE4:
+ 130              		.size	checkKey2, .-checkKey2
+ 131              		.align	2
+ 132              		.global	sampleKey
+ 133              		.code 16
+ 134              		.thumb_func
+ 135              		.type	sampleKey, %function
+ 136              	sampleKey:
+ 137              	.LFB5:
+ 122:key.c         **** 
+ 123:key.c         **** /*****************************************************************************
+ 124:key.c         ****  *
+ 125:key.c         ****  * Description:
+ 126:key.c         ****  *    Sample key states
+ 127:key.c         ****  *
+ 128:key.c         ****  ****************************************************************************/
+ 129:key.c         **** void
+ 130:key.c         **** sampleKey(void)
+ 131:key.c         **** {
+ 138              		.loc 1 131 0
+ 139 006c 30B5     		push	{r4, r5, lr}
+ 140              	.LCFI0:
+ 132:key.c         ****   tBool nothing = TRUE;
+ 133:key.c         ****   tU8   readKeys;
+ 134:key.c         ****   
+ 135:key.c         ****   //get sample
+ 136:key.c         ****   readKeys = getKeys();
+ 141              		.loc 1 136 0
+ 142 006e FFF7FEFF 		bl	getKeys
+ 143 0072 051C     		mov	r5, r0
+ 137:key.c         ****   
+ 138:key.c         **** 
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s 			page 6
+
+
+ 139:key.c         ****   //check center key
+ 140:key.c         ****   if (readKeys & KEY_CENTER)
+ 144              		.loc 1 140 0
+ 145 0074 1020     		mov	r0, #16
+ 146 0076 4E4A     		ldr	r2, .L89
+ 147 0078 0542     		tst	r5, r0
+ 148 007a 17D0     		beq	.L25
+ 141:key.c         ****   {
+ 142:key.c         ****     nothing = FALSE;
+ 143:key.c         ****   	if (centerReleased == TRUE)
+ 149              		.loc 1 143 0
+ 150 007c 1378     		ldrb	r3, [r2]
+ 151 007e 4D49     		ldr	r1, .L89+4
+ 152 0080 012B     		cmp	r3, #1
+ 153 0082 02D1     		bne	.L27
+ 144:key.c         ****   	{
+ 145:key.c         ****   		centerReleased = FALSE;
+ 154              		.loc 1 145 0
+ 155 0084 0023     		mov	r3, #0
+ 156 0086 1370     		strb	r3, [r2]
+ 157 0088 09E0     		b	.L85
+ 158              	.L27:
+ 146:key.c         ****   		centerKeyCnt = 0;
+ 147:key.c         ****   		activeKey = KEY_CENTER;
+ 148:key.c         ****   		activeKey2 = KEY_CENTER;
+ 149:key.c         ****   	}
+ 150:key.c         ****   	else
+ 151:key.c         ****   	{
+ 152:key.c         ****   	  centerKeyCnt++;
+ 159              		.loc 1 152 0
+ 160 008a 0B78     		ldrb	r3, [r1]
+ 161 008c 0133     		add	r3, r3, #1
+ 162 008e 1B06     		lsl	r3, r3, #24
+ 163 0090 1B0E     		lsr	r3, r3, #24
+ 164 0092 0B70     		strb	r3, [r1]
+ 153:key.c         ****   	  if (centerKeyCnt == FIRST_REPEAT)
+ 165              		.loc 1 153 0
+ 166 0094 042B     		cmp	r3, #4
+ 167 0096 03D0     		beq	.L72
+ 154:key.c         ****   	  {
+ 155:key.c         ****   		  activeKey = KEY_CENTER;
+ 156:key.c         ****   		  activeKey2 = KEY_CENTER;
+ 157:key.c         ****   	  }
+ 158:key.c         ****   	  else if (centerKeyCnt >= FIRST_REPEAT + SECOND_REPEAT)
+ 168              		.loc 1 158 0
+ 169 0098 062B     		cmp	r3, #6
+ 170 009a 05D9     		bls	.L73
+ 159:key.c         ****   	  {
+ 160:key.c         ****   		  centerKeyCnt = FIRST_REPEAT;
+ 171              		.loc 1 160 0
+ 172 009c 0423     		mov	r3, #4
+ 173              	.L85:
+ 174 009e 0B70     		strb	r3, [r1]
+ 175              	.L72:
+ 161:key.c         ****   		  activeKey = KEY_CENTER;
+ 176              		.loc 1 161 0
+ 177 00a0 454B     		ldr	r3, .L89+8
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s 			page 7
+
+
+ 178 00a2 1870     		strb	r0, [r3]
+ 162:key.c         ****   		  activeKey2 = KEY_CENTER;
+ 179              		.loc 1 162 0
+ 180 00a4 454B     		ldr	r3, .L89+12
+ 181 00a6 1870     		strb	r0, [r3]
+ 182              	.L73:
+ 183 00a8 0024     		mov	r4, #0
+ 184              	.LVL4:
+ 185 00aa 02E0     		b	.L29
+ 186              	.LVL5:
+ 187              	.L25:
+ 163:key.c         ****   	  }
+ 164:key.c         ****   	}
+ 165:key.c         ****   }
+ 166:key.c         ****   else
+ 167:key.c         ****   	centerReleased = TRUE;
+ 188              		.loc 1 167 0
+ 189 00ac 0123     		mov	r3, #1
+ 190 00ae 1370     		strb	r3, [r2]
+ 191 00b0 0124     		mov	r4, #1
+ 192              	.LVL6:
+ 193              	.L29:
+ 168:key.c         **** 
+ 169:key.c         ****   //check up key
+ 170:key.c         ****   if (readKeys & KEY_UP)
+ 194              		.loc 1 170 0
+ 195 00b2 0120     		mov	r0, #1
+ 196 00b4 424A     		ldr	r2, .L89+16
+ 197 00b6 0542     		tst	r5, r0
+ 198 00b8 17D0     		beq	.L34
+ 171:key.c         ****   {
+ 172:key.c         ****     nothing = FALSE;
+ 173:key.c         ****   	if (keyUpReleased == TRUE)
+ 199              		.loc 1 173 0
+ 200 00ba 1378     		ldrb	r3, [r2]
+ 201 00bc 4149     		ldr	r1, .L89+20
+ 202 00be 012B     		cmp	r3, #1
+ 203 00c0 02D1     		bne	.L36
+ 174:key.c         ****   	{
+ 175:key.c         ****   		keyUpReleased = FALSE;
+ 204              		.loc 1 175 0
+ 205 00c2 0023     		mov	r3, #0
+ 206 00c4 1370     		strb	r3, [r2]
+ 207 00c6 09E0     		b	.L86
+ 208              	.L36:
+ 176:key.c         ****   		upKeyCnt = 0;
+ 177:key.c         ****   		activeKey = KEY_UP;
+ 178:key.c         ****   		activeKey2 = KEY_UP;
+ 179:key.c         ****   	}
+ 180:key.c         ****   	else
+ 181:key.c         ****   	{
+ 182:key.c         ****   	  upKeyCnt++;
+ 209              		.loc 1 182 0
+ 210 00c8 0B78     		ldrb	r3, [r1]
+ 211 00ca 0133     		add	r3, r3, #1
+ 212 00cc 1B06     		lsl	r3, r3, #24
+ 213 00ce 1B0E     		lsr	r3, r3, #24
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s 			page 8
+
+
+ 214 00d0 0B70     		strb	r3, [r1]
+ 183:key.c         ****   	  if (upKeyCnt == FIRST_REPEAT)
+ 215              		.loc 1 183 0
+ 216 00d2 042B     		cmp	r3, #4
+ 217 00d4 03D0     		beq	.L75
+ 184:key.c         ****   	  {
+ 185:key.c         ****   		  activeKey = KEY_UP;
+ 186:key.c         ****   		  activeKey2 = KEY_UP;
+ 187:key.c         ****   	  }
+ 188:key.c         ****   	  else if (upKeyCnt >= FIRST_REPEAT + SECOND_REPEAT)
+ 218              		.loc 1 188 0
+ 219 00d6 062B     		cmp	r3, #6
+ 220 00d8 05D9     		bls	.L76
+ 189:key.c         ****   	  {
+ 190:key.c         ****   		  upKeyCnt = FIRST_REPEAT;
+ 221              		.loc 1 190 0
+ 222 00da 0423     		mov	r3, #4
+ 223              	.L86:
+ 224 00dc 0B70     		strb	r3, [r1]
+ 225              	.L75:
+ 191:key.c         ****   		  activeKey = KEY_UP;
+ 226              		.loc 1 191 0
+ 227 00de 364B     		ldr	r3, .L89+8
+ 228 00e0 1870     		strb	r0, [r3]
+ 192:key.c         ****   		  activeKey2 = KEY_UP;
+ 229              		.loc 1 192 0
+ 230 00e2 364B     		ldr	r3, .L89+12
+ 231 00e4 1870     		strb	r0, [r3]
+ 232              	.L76:
+ 233 00e6 0024     		mov	r4, #0
+ 234 00e8 00E0     		b	.L38
+ 235              	.L34:
+ 193:key.c         ****   	  }
+ 194:key.c         ****   	}
+ 195:key.c         ****   }
+ 196:key.c         ****   else
+ 197:key.c         ****   	keyUpReleased = TRUE;
+ 236              		.loc 1 197 0
+ 237 00ea 1070     		strb	r0, [r2]
+ 238              	.L38:
+ 198:key.c         **** 
+ 199:key.c         ****   //check down key
+ 200:key.c         ****   if (readKeys & KEY_DOWN)
+ 239              		.loc 1 200 0
+ 240 00ec 0420     		mov	r0, #4
+ 241 00ee 364A     		ldr	r2, .L89+24
+ 242 00f0 0542     		tst	r5, r0
+ 243 00f2 17D0     		beq	.L43
+ 201:key.c         ****   {
+ 202:key.c         ****     nothing = FALSE;
+ 203:key.c         ****   	if (keyDownReleased == TRUE)
+ 244              		.loc 1 203 0
+ 245 00f4 1378     		ldrb	r3, [r2]
+ 246 00f6 3549     		ldr	r1, .L89+28
+ 247 00f8 012B     		cmp	r3, #1
+ 248 00fa 03D1     		bne	.L45
+ 204:key.c         ****   	{
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s 			page 9
+
+
+ 205:key.c         ****   		keyDownReleased = FALSE;
+ 249              		.loc 1 205 0
+ 250 00fc 0023     		mov	r3, #0
+ 251 00fe 1370     		strb	r3, [r2]
+ 206:key.c         ****   		downKeyCnt = 0;
+ 252              		.loc 1 206 0
+ 253 0100 0B70     		strb	r3, [r1]
+ 254 0102 09E0     		b	.L78
+ 255              	.L45:
+ 207:key.c         ****   		activeKey = KEY_DOWN;
+ 208:key.c         ****   		activeKey2 = KEY_DOWN;
+ 209:key.c         ****   	}
+ 210:key.c         ****   	else
+ 211:key.c         ****   	{
+ 212:key.c         ****   	  downKeyCnt++;
+ 256              		.loc 1 212 0
+ 257 0104 0B78     		ldrb	r3, [r1]
+ 258 0106 0133     		add	r3, r3, #1
+ 259 0108 1B06     		lsl	r3, r3, #24
+ 260 010a 1B0E     		lsr	r3, r3, #24
+ 261 010c 0B70     		strb	r3, [r1]
+ 213:key.c         ****   	  if (downKeyCnt == FIRST_REPEAT)
+ 262              		.loc 1 213 0
+ 263 010e 042B     		cmp	r3, #4
+ 264 0110 02D0     		beq	.L78
+ 214:key.c         ****   	  {
+ 215:key.c         ****   		  activeKey = KEY_DOWN;
+ 216:key.c         ****   		  activeKey2 = KEY_DOWN;
+ 217:key.c         ****   	  }
+ 218:key.c         ****   	  else if (downKeyCnt >= FIRST_REPEAT + SECOND_REPEAT)
+ 265              		.loc 1 218 0
+ 266 0112 062B     		cmp	r3, #6
+ 267 0114 04D9     		bls	.L79
+ 219:key.c         ****   	  {
+ 220:key.c         ****   		  downKeyCnt = FIRST_REPEAT;
+ 268              		.loc 1 220 0
+ 269 0116 0870     		strb	r0, [r1]
+ 270              	.L78:
+ 221:key.c         ****   		  activeKey = KEY_DOWN;
+ 271              		.loc 1 221 0
+ 272 0118 274B     		ldr	r3, .L89+8
+ 273 011a 1870     		strb	r0, [r3]
+ 222:key.c         ****   		  activeKey2 = KEY_DOWN;
+ 274              		.loc 1 222 0
+ 275 011c 274B     		ldr	r3, .L89+12
+ 276 011e 1870     		strb	r0, [r3]
+ 277              	.L79:
+ 278 0120 0024     		mov	r4, #0
+ 279 0122 01E0     		b	.L47
+ 280              	.L43:
+ 223:key.c         ****   	  }
+ 224:key.c         ****   	}
+ 225:key.c         ****   }
+ 226:key.c         ****   else
+ 227:key.c         ****   	keyDownReleased = TRUE;
+ 281              		.loc 1 227 0
+ 282 0124 0123     		mov	r3, #1
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s 			page 10
+
+
+ 283 0126 1370     		strb	r3, [r2]
+ 284              	.L47:
+ 228:key.c         **** 
+ 229:key.c         ****   //check left key
+ 230:key.c         ****   if (readKeys & KEY_LEFT)
+ 285              		.loc 1 230 0
+ 286 0128 0820     		mov	r0, #8
+ 287 012a 294A     		ldr	r2, .L89+32
+ 288 012c 0542     		tst	r5, r0
+ 289 012e 17D0     		beq	.L52
+ 231:key.c         ****   {
+ 232:key.c         ****     nothing = FALSE;
+ 233:key.c         ****   	if (keyLeftReleased == TRUE)
+ 290              		.loc 1 233 0
+ 291 0130 1378     		ldrb	r3, [r2]
+ 292 0132 2849     		ldr	r1, .L89+36
+ 293 0134 012B     		cmp	r3, #1
+ 294 0136 02D1     		bne	.L54
+ 234:key.c         ****   	{
+ 235:key.c         ****   		keyLeftReleased = FALSE;
+ 295              		.loc 1 235 0
+ 296 0138 0023     		mov	r3, #0
+ 297 013a 1370     		strb	r3, [r2]
+ 298 013c 09E0     		b	.L87
+ 299              	.L54:
+ 236:key.c         ****   		leftKeyCnt = 0;
+ 237:key.c         ****   		activeKey = KEY_LEFT;
+ 238:key.c         ****   		activeKey2 = KEY_LEFT;
+ 239:key.c         ****   	}
+ 240:key.c         ****   	else
+ 241:key.c         ****   	{
+ 242:key.c         ****   	  leftKeyCnt++;
+ 300              		.loc 1 242 0
+ 301 013e 0B78     		ldrb	r3, [r1]
+ 302 0140 0133     		add	r3, r3, #1
+ 303 0142 1B06     		lsl	r3, r3, #24
+ 304 0144 1B0E     		lsr	r3, r3, #24
+ 305 0146 0B70     		strb	r3, [r1]
+ 243:key.c         ****   	  if (leftKeyCnt == FIRST_REPEAT)
+ 306              		.loc 1 243 0
+ 307 0148 042B     		cmp	r3, #4
+ 308 014a 03D0     		beq	.L81
+ 244:key.c         ****   	  {
+ 245:key.c         ****   		  activeKey = KEY_LEFT;
+ 246:key.c         ****   		  activeKey2 = KEY_LEFT;
+ 247:key.c         ****   	  }
+ 248:key.c         ****   	  else if (leftKeyCnt >= FIRST_REPEAT + SECOND_REPEAT)
+ 309              		.loc 1 248 0
+ 310 014c 062B     		cmp	r3, #6
+ 311 014e 05D9     		bls	.L82
+ 249:key.c         ****   	  {
+ 250:key.c         ****   		  leftKeyCnt = FIRST_REPEAT;
+ 312              		.loc 1 250 0
+ 313 0150 0423     		mov	r3, #4
+ 314              	.L87:
+ 315 0152 0B70     		strb	r3, [r1]
+ 316              	.L81:
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s 			page 11
+
+
+ 251:key.c         ****   		  activeKey = KEY_LEFT;
+ 317              		.loc 1 251 0
+ 318 0154 184B     		ldr	r3, .L89+8
+ 319 0156 1870     		strb	r0, [r3]
+ 252:key.c         ****   		  activeKey2 = KEY_LEFT;
+ 320              		.loc 1 252 0
+ 321 0158 184B     		ldr	r3, .L89+12
+ 322 015a 1870     		strb	r0, [r3]
+ 323              	.L82:
+ 324 015c 0024     		mov	r4, #0
+ 325 015e 01E0     		b	.L56
+ 326              	.L52:
+ 253:key.c         ****   	  }
+ 254:key.c         ****   	}
+ 255:key.c         ****   }
+ 256:key.c         ****   else
+ 257:key.c         ****   	keyLeftReleased = TRUE;
+ 327              		.loc 1 257 0
+ 328 0160 0123     		mov	r3, #1
+ 329 0162 1370     		strb	r3, [r2]
+ 330              	.L56:
+ 258:key.c         **** 
+ 259:key.c         ****   //check right key
+ 260:key.c         ****   if (readKeys & KEY_RIGHT)
+ 331              		.loc 1 260 0
+ 332 0164 0220     		mov	r0, #2
+ 333 0166 291C     		mov	r1, r5
+ 334 0168 1B4A     		ldr	r2, .L89+40
+ 335 016a 0140     		and	r1, r0
+ 336 016c 16D0     		beq	.L61
+ 261:key.c         ****   {
+ 262:key.c         ****     nothing = FALSE;
+ 263:key.c         ****   	if (keyRightReleased == TRUE)
+ 337              		.loc 1 263 0
+ 338 016e 1378     		ldrb	r3, [r2]
+ 339 0170 1A49     		ldr	r1, .L89+44
+ 340 0172 012B     		cmp	r3, #1
+ 341 0174 02D1     		bne	.L63
+ 264:key.c         ****   	{
+ 265:key.c         ****   		keyRightReleased = FALSE;
+ 342              		.loc 1 265 0
+ 343 0176 0023     		mov	r3, #0
+ 344 0178 1370     		strb	r3, [r2]
+ 345 017a 09E0     		b	.L88
+ 346              	.L63:
+ 266:key.c         ****   		rightKeyCnt = 0;
+ 267:key.c         ****   		activeKey = KEY_RIGHT;
+ 268:key.c         ****   		activeKey2 = KEY_RIGHT;
+ 269:key.c         ****   	}
+ 270:key.c         ****   	else
+ 271:key.c         ****   	{
+ 272:key.c         ****   	  rightKeyCnt++;
+ 347              		.loc 1 272 0
+ 348 017c 0B78     		ldrb	r3, [r1]
+ 349 017e 0133     		add	r3, r3, #1
+ 350 0180 1B06     		lsl	r3, r3, #24
+ 351 0182 1B0E     		lsr	r3, r3, #24
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s 			page 12
+
+
+ 352 0184 0B70     		strb	r3, [r1]
+ 273:key.c         ****   	  if (rightKeyCnt == FIRST_REPEAT)
+ 353              		.loc 1 273 0
+ 354 0186 042B     		cmp	r3, #4
+ 355 0188 03D0     		beq	.L84
+ 274:key.c         ****   	  {
+ 275:key.c         ****   		  activeKey = KEY_RIGHT;
+ 276:key.c         ****   		  activeKey2 = KEY_RIGHT;
+ 277:key.c         ****   	  }
+ 278:key.c         ****   	  else if (rightKeyCnt >= FIRST_REPEAT + SECOND_REPEAT)
+ 356              		.loc 1 278 0
+ 357 018a 062B     		cmp	r3, #6
+ 358 018c 0CD9     		bls	.L70
+ 279:key.c         ****   	  {
+ 280:key.c         ****   		  rightKeyCnt = FIRST_REPEAT;
+ 359              		.loc 1 280 0
+ 360 018e 0423     		mov	r3, #4
+ 361              	.L88:
+ 362 0190 0B70     		strb	r3, [r1]
+ 363              	.L84:
+ 281:key.c         ****   		  activeKey = KEY_RIGHT;
+ 364              		.loc 1 281 0
+ 365 0192 094B     		ldr	r3, .L89+8
+ 366 0194 1870     		strb	r0, [r3]
+ 282:key.c         ****   		  activeKey2 = KEY_RIGHT;
+ 367              		.loc 1 282 0
+ 368 0196 094B     		ldr	r3, .L89+12
+ 369 0198 1870     		strb	r0, [r3]
+ 370 019a 05E0     		b	.L70
+ 371              	.L61:
+ 283:key.c         ****   	  }
+ 284:key.c         ****   	}
+ 285:key.c         ****   }
+ 286:key.c         ****   else
+ 287:key.c         ****   	keyRightReleased = TRUE;
+ 372              		.loc 1 287 0
+ 373 019c 0123     		mov	r3, #1
+ 374 019e 1370     		strb	r3, [r2]
+ 288:key.c         ****   
+ 289:key.c         ****   if (nothing == TRUE)
+ 375              		.loc 1 289 0
+ 376 01a0 012C     		cmp	r4, #1
+ 377 01a2 01D1     		bne	.L70
+ 290:key.c         ****     activeKey2 = KEY_NOTHING;
+ 378              		.loc 1 290 0
+ 379 01a4 054B     		ldr	r3, .L89+12
+ 380 01a6 1970     		strb	r1, [r3]
+ 381              	.L70:
+ 291:key.c         **** }
+ 382              		.loc 1 291 0
+ 383              		@ sp needed for prologue
+ 384              	.LVL7:
+ 385 01a8 30BC     		pop	{r4, r5}
+ 386 01aa 01BC     		pop	{r0}
+ 387 01ac 0047     		bx	r0
+ 388              	.L90:
+ 389 01ae 0000     		.align	2
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s 			page 13
+
+
+ 390              	.L89:
+ 391 01b0 00000000 		.word	centerReleased
+ 392 01b4 02000000 		.word	centerKeyCnt
+ 393 01b8 00000000 		.word	activeKey
+ 394 01bc 01000000 		.word	activeKey2
+ 395 01c0 01000000 		.word	keyUpReleased
+ 396 01c4 03000000 		.word	upKeyCnt
+ 397 01c8 02000000 		.word	keyDownReleased
+ 398 01cc 04000000 		.word	downKeyCnt
+ 399 01d0 03000000 		.word	keyLeftReleased
+ 400 01d4 05000000 		.word	leftKeyCnt
+ 401 01d8 04000000 		.word	keyRightReleased
+ 402 01dc 06000000 		.word	rightKeyCnt
+ 403              	.LFE5:
+ 404              		.size	sampleKey, .-sampleKey
+ 405              		.align	2
+ 406              		.global	initKeyProc
+ 407              		.code 16
+ 408              		.thumb_func
+ 409              		.type	initKeyProc, %function
+ 410              	initKeyProc:
+ 411              	.LFB7:
+ 292:key.c         **** 
+ 293:key.c         **** 
+ 294:key.c         **** /*****************************************************************************
+ 295:key.c         ****  *
+ 296:key.c         ****  * Description:
+ 297:key.c         ****  *    A process entry function 
+ 298:key.c         ****  *
+ 299:key.c         ****  * Params:
+ 300:key.c         ****  *    [in] arg - This parameter is not used in this application. 
+ 301:key.c         ****  *
+ 302:key.c         ****  ****************************************************************************/
+ 303:key.c         **** static void
+ 304:key.c         **** procKey(void* arg)
+ 305:key.c         **** {
+ 306:key.c         ****   //make all key signals as inputs
+ 307:key.c         ****   IODIR &= ~(KEYPIN_CENTER | KEYPIN_UP | KEYPIN_DOWN | KEYPIN_LEFT | KEYPIN_RIGHT);
+ 308:key.c         **** 
+ 309:key.c         ****   //sample keys each 50 ms, i.e., 20 times per second
+ 310:key.c         ****   while(1)
+ 311:key.c         ****   {
+ 312:key.c         ****     sampleKey();
+ 313:key.c         ****     osSleep(5);
+ 314:key.c         ****   }
+ 315:key.c         **** }
+ 316:key.c         **** 
+ 317:key.c         **** /*****************************************************************************
+ 318:key.c         ****  *
+ 319:key.c         ****  * Description:
+ 320:key.c         ****  *    Creates and starts the key sampling process. 
+ 321:key.c         ****  *
+ 322:key.c         ****  ****************************************************************************/
+ 323:key.c         **** void
+ 324:key.c         **** initKeyProc(void)
+ 325:key.c         **** {
+ 412              		.loc 1 325 0
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s 			page 14
+
+
+ 413 01e0 30B5     		push	{r4, r5, lr}
+ 414              	.LCFI1:
+ 415 01e2 84B0     		sub	sp, sp, #16
+ 416              	.LCFI2:
+ 326:key.c         ****   tU8 error;
+ 327:key.c         **** 
+ 328:key.c         ****   osCreateProcess(procKey, keyProcStack, KEYPROC_STACK_SIZE, &keyProcPid, 3, NULL, &error);
+ 417              		.loc 1 328 0
+ 418 01e4 0B4D     		ldr	r5, .L93
+ 419 01e6 0323     		mov	r3, #3
+ 420 01e8 0093     		str	r3, [sp]
+ 421 01ea 6C46     		mov	r4, sp
+ 422 01ec 0023     		mov	r3, #0
+ 423 01ee 9622     		mov	r2, #150
+ 424 01f0 5200     		lsl	r2, r2, #1
+ 425 01f2 0193     		str	r3, [sp, #4]
+ 426 01f4 0F34     		add	r4, r4, #15
+ 427 01f6 2B1C     		mov	r3, r5
+ 428 01f8 0748     		ldr	r0, .L93+4
+ 429 01fa 0849     		ldr	r1, .L93+8
+ 430 01fc 0294     		str	r4, [sp, #8]
+ 431 01fe FFF7FEFF 		bl	osCreateProcess
+ 329:key.c         ****   osStartProcess(keyProcPid, &error);
+ 432              		.loc 1 329 0
+ 433 0202 2878     		ldrb	r0, [r5]
+ 434 0204 211C     		mov	r1, r4
+ 435 0206 FFF7FEFF 		bl	osStartProcess
+ 330:key.c         **** }
+ 436              		.loc 1 330 0
+ 437 020a 04B0     		add	sp, sp, #16
+ 438              		@ sp needed for prologue
+ 439 020c 30BC     		pop	{r4, r5}
+ 440 020e 01BC     		pop	{r0}
+ 441 0210 0047     		bx	r0
+ 442              	.L94:
+ 443 0212 0000     		.align	2
+ 444              	.L93:
+ 445 0214 33010000 		.word	keyProcPid
+ 446 0218 00000000 		.word	procKey
+ 447 021c 07000000 		.word	keyProcStack
+ 448              	.LFE7:
+ 449              		.size	initKeyProc, .-initKeyProc
+ 450              		.align	2
+ 451              		.code 16
+ 452              		.thumb_func
+ 453              		.type	procKey, %function
+ 454              	procKey:
+ 455              	.LFB6:
+ 456              		.loc 1 305 0
+ 457 0220 00B5     		push	{lr}
+ 458              	.LCFI3:
+ 459              	.LVL8:
+ 460              		.loc 1 307 0
+ 461 0222 054B     		ldr	r3, .L98
+ 462 0224 0549     		ldr	r1, .L98+4
+ 463 0226 1A68     		ldr	r2, [r3]
+ 464 0228 0A40     		and	r2, r2, r1
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s 			page 15
+
+
+ 465 022a 1A60     		str	r2, [r3]
+ 466              	.L96:
+ 467              		.loc 1 312 0
+ 468 022c FFF7FEFF 		bl	sampleKey
+ 469              	.LVL9:
+ 470              		.loc 1 313 0
+ 471 0230 0520     		mov	r0, #5
+ 472 0232 FFF7FEFF 		bl	osSleep
+ 473 0236 F9E7     		b	.L96
+ 474              	.L99:
+ 475              		.align	2
+ 476              	.L98:
+ 477 0238 088002E0 		.word	-536707064
+ 478 023c FFE0FFFF 		.word	-7937
+ 479              	.LFE6:
+ 480              		.size	procKey, .-procKey
+ 481              		.data
+ 482              		.type	centerReleased, %object
+ 483              		.size	centerReleased, 1
+ 484              	centerReleased:
+ 485 0000 01       		.byte	1
+ 486              		.bss
+ 487              	activeKey:
+ 488 0000 00       		.space	1
+ 489              	activeKey2:
+ 490 0001 00       		.space	1
+ 491              		.data
+ 492              		.type	keyUpReleased, %object
+ 493              		.size	keyUpReleased, 1
+ 494              	keyUpReleased:
+ 495 0001 01       		.byte	1
+ 496              		.type	keyDownReleased, %object
+ 497              		.size	keyDownReleased, 1
+ 498              	keyDownReleased:
+ 499 0002 01       		.byte	1
+ 500              		.type	keyLeftReleased, %object
+ 501              		.size	keyLeftReleased, 1
+ 502              	keyLeftReleased:
+ 503 0003 01       		.byte	1
+ 504              		.type	keyRightReleased, %object
+ 505              		.size	keyRightReleased, 1
+ 506              	keyRightReleased:
+ 507 0004 01       		.byte	1
+ 508              		.bss
+ 509              	centerKeyCnt:
+ 510 0002 00       		.space	1
+ 511              	upKeyCnt:
+ 512 0003 00       		.space	1
+ 513              	downKeyCnt:
+ 514 0004 00       		.space	1
+ 515              	leftKeyCnt:
+ 516 0005 00       		.space	1
+ 517              	rightKeyCnt:
+ 518 0006 00       		.space	1
+ 519              	keyProcStack:
+ 520 0007 00000000 		.space	300
+ 520      00000000 
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s 			page 16
+
+
+ 520      00000000 
+ 520      00000000 
+ 520      00000000 
+ 521              	keyProcPid:
+ 522 0133 00       		.space	1
+ 523              		.section	.debug_frame,"",%progbits
+ 524              	.Lframe0:
+ 525 0000 0C000000 		.4byte	.LECIE0-.LSCIE0
+ 526              	.LSCIE0:
+ 527 0004 FFFFFFFF 		.4byte	0xffffffff
+ 528 0008 01       		.byte	0x1
+ 529 0009 00       		.ascii	"\000"
+ 530 000a 01       		.uleb128 0x1
+ 531 000b 7C       		.sleb128 -4
+ 532 000c 0E       		.byte	0xe
+ 533 000d 0C       		.byte	0xc
+ 534 000e 0D       		.uleb128 0xd
+ 535 000f 00       		.uleb128 0x0
+ 536              		.align	2
+ 537              	.LECIE0:
+ 538              	.LSFDE0:
+ 539 0010 0C000000 		.4byte	.LEFDE0-.LASFDE0
+ 540              	.LASFDE0:
+ 541 0014 00000000 		.4byte	.Lframe0
+ 542 0018 00000000 		.4byte	.LFB2
+ 543 001c 50000000 		.4byte	.LFE2-.LFB2
+ 544              		.align	2
+ 545              	.LEFDE0:
+ 546              	.LSFDE2:
+ 547 0020 0C000000 		.4byte	.LEFDE2-.LASFDE2
+ 548              	.LASFDE2:
+ 549 0024 00000000 		.4byte	.Lframe0
+ 550 0028 50000000 		.4byte	.LFB3
+ 551 002c 10000000 		.4byte	.LFE3-.LFB3
+ 552              		.align	2
+ 553              	.LEFDE2:
+ 554              	.LSFDE4:
+ 555 0030 0C000000 		.4byte	.LEFDE4-.LASFDE4
+ 556              	.LASFDE4:
+ 557 0034 00000000 		.4byte	.Lframe0
+ 558 0038 60000000 		.4byte	.LFB4
+ 559 003c 0C000000 		.4byte	.LFE4-.LFB4
+ 560              		.align	2
+ 561              	.LEFDE4:
+ 562              	.LSFDE6:
+ 563 0040 18000000 		.4byte	.LEFDE6-.LASFDE6
+ 564              	.LASFDE6:
+ 565 0044 00000000 		.4byte	.Lframe0
+ 566 0048 6C000000 		.4byte	.LFB5
+ 567 004c 74010000 		.4byte	.LFE5-.LFB5
+ 568 0050 42       		.byte	0x4
+ 569              		.4byte	.LCFI0-.LFB5
+ 570 0051 0E       		.byte	0xe
+ 571 0052 0C       		.uleb128 0xc
+ 572 0053 84       		.byte	0x84
+ 573 0054 03       		.uleb128 0x3
+ 574 0055 85       		.byte	0x85
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s 			page 17
+
+
+ 575 0056 02       		.uleb128 0x2
+ 576 0057 8E       		.byte	0x8e
+ 577 0058 01       		.uleb128 0x1
+ 578 0059 000000   		.align	2
+ 579              	.LEFDE6:
+ 580              	.LSFDE8:
+ 581 005c 18000000 		.4byte	.LEFDE8-.LASFDE8
+ 582              	.LASFDE8:
+ 583 0060 00000000 		.4byte	.Lframe0
+ 584 0064 E0010000 		.4byte	.LFB7
+ 585 0068 40000000 		.4byte	.LFE7-.LFB7
+ 586 006c 42       		.byte	0x4
+ 587              		.4byte	.LCFI1-.LFB7
+ 588 006d 0E       		.byte	0xe
+ 589 006e 0C       		.uleb128 0xc
+ 590 006f 84       		.byte	0x84
+ 591 0070 03       		.uleb128 0x3
+ 592 0071 85       		.byte	0x85
+ 593 0072 02       		.uleb128 0x2
+ 594 0073 8E       		.byte	0x8e
+ 595 0074 01       		.uleb128 0x1
+ 596 0075 42       		.byte	0x4
+ 597              		.4byte	.LCFI2-.LCFI1
+ 598 0076 0E       		.byte	0xe
+ 599 0077 1C       		.uleb128 0x1c
+ 600              		.align	2
+ 601              	.LEFDE8:
+ 602              	.LSFDE10:
+ 603 0078 14000000 		.4byte	.LEFDE10-.LASFDE10
+ 604              	.LASFDE10:
+ 605 007c 00000000 		.4byte	.Lframe0
+ 606 0080 20020000 		.4byte	.LFB6
+ 607 0084 20000000 		.4byte	.LFE6-.LFB6
+ 608 0088 42       		.byte	0x4
+ 609              		.4byte	.LCFI3-.LFB6
+ 610 0089 0E       		.byte	0xe
+ 611 008a 04       		.uleb128 0x4
+ 612 008b 8E       		.byte	0x8e
+ 613 008c 01       		.uleb128 0x1
+ 614 008d 000000   		.align	2
+ 615              	.LEFDE10:
+ 616              		.file 2 "./startup/../pre_emptive_os/api/../api/general.h"
+ 617              		.text
+ 618              	.Letext0:
+ 619              		.section	.debug_loc,"",%progbits
+ 620              	.Ldebug_loc0:
+ 621              	.LLST1:
+ 622 0000 0A000000 		.4byte	.LVL0-.Ltext0
+ 623 0004 0C000000 		.4byte	.LVL1-.Ltext0
+ 624 0008 0100     		.2byte	0x1
+ 625 000a 50       		.byte	0x50
+ 626 000b 0E000000 		.4byte	.LVL2-.Ltext0
+ 627 000f 48000000 		.4byte	.LVL3-.Ltext0
+ 628 0013 0100     		.2byte	0x1
+ 629 0015 50       		.byte	0x50
+ 630 0016 00000000 		.4byte	0x0
+ 631 001a 00000000 		.4byte	0x0
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s 			page 18
+
+
+ 632              	.LLST4:
+ 633 001e 6C000000 		.4byte	.LFB5-.Ltext0
+ 634 0022 6E000000 		.4byte	.LCFI0-.Ltext0
+ 635 0026 0100     		.2byte	0x1
+ 636 0028 5D       		.byte	0x5d
+ 637 0029 6E000000 		.4byte	.LCFI0-.Ltext0
+ 638 002d E0010000 		.4byte	.LFE5-.Ltext0
+ 639 0031 0200     		.2byte	0x2
+ 640 0033 7D       		.byte	0x7d
+ 641 0034 0C       		.sleb128 12
+ 642 0035 00000000 		.4byte	0x0
+ 643 0039 00000000 		.4byte	0x0
+ 644              	.LLST5:
+ 645 003d AA000000 		.4byte	.LVL4-.Ltext0
+ 646 0041 AC000000 		.4byte	.LVL5-.Ltext0
+ 647 0045 0100     		.2byte	0x1
+ 648 0047 54       		.byte	0x54
+ 649 0048 B2000000 		.4byte	.LVL6-.Ltext0
+ 650 004c A8010000 		.4byte	.LVL7-.Ltext0
+ 651 0050 0100     		.2byte	0x1
+ 652 0052 54       		.byte	0x54
+ 653 0053 00000000 		.4byte	0x0
+ 654 0057 00000000 		.4byte	0x0
+ 655              	.LLST6:
+ 656 005b E0010000 		.4byte	.LFB7-.Ltext0
+ 657 005f E2010000 		.4byte	.LCFI1-.Ltext0
+ 658 0063 0100     		.2byte	0x1
+ 659 0065 5D       		.byte	0x5d
+ 660 0066 E2010000 		.4byte	.LCFI1-.Ltext0
+ 661 006a E4010000 		.4byte	.LCFI2-.Ltext0
+ 662 006e 0200     		.2byte	0x2
+ 663 0070 7D       		.byte	0x7d
+ 664 0071 0C       		.sleb128 12
+ 665 0072 E4010000 		.4byte	.LCFI2-.Ltext0
+ 666 0076 20020000 		.4byte	.LFE7-.Ltext0
+ 667 007a 0200     		.2byte	0x2
+ 668 007c 7D       		.byte	0x7d
+ 669 007d 1C       		.sleb128 28
+ 670 007e 00000000 		.4byte	0x0
+ 671 0082 00000000 		.4byte	0x0
+ 672              	.LLST7:
+ 673 0086 20020000 		.4byte	.LFB6-.Ltext0
+ 674 008a 22020000 		.4byte	.LCFI3-.Ltext0
+ 675 008e 0100     		.2byte	0x1
+ 676 0090 5D       		.byte	0x5d
+ 677 0091 22020000 		.4byte	.LCFI3-.Ltext0
+ 678 0095 40020000 		.4byte	.LFE6-.Ltext0
+ 679 0099 0200     		.2byte	0x2
+ 680 009b 7D       		.byte	0x7d
+ 681 009c 04       		.sleb128 4
+ 682 009d 00000000 		.4byte	0x0
+ 683 00a1 00000000 		.4byte	0x0
+ 684              	.LLST8:
+ 685 00a5 22020000 		.4byte	.LVL8-.Ltext0
+ 686 00a9 30020000 		.4byte	.LVL9-.Ltext0
+ 687 00ad 0100     		.2byte	0x1
+ 688 00af 50       		.byte	0x50
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s 			page 19
+
+
+ 689 00b0 00000000 		.4byte	0x0
+ 690 00b4 00000000 		.4byte	0x0
+ 691              		.section	.debug_info
+ 692 0000 62020000 		.4byte	0x262
+ 693 0004 0200     		.2byte	0x2
+ 694 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 695 000a 04       		.byte	0x4
+ 696 000b 01       		.uleb128 0x1
+ 697 000c 00000000 		.4byte	.Ldebug_line0
+ 698 0010 40020000 		.4byte	.Letext0
+ 699 0014 00000000 		.4byte	.Ltext0
+ 700 0018 FB000000 		.4byte	.LASF29
+ 701 001c 01       		.byte	0x1
+ 702 001d 19000000 		.4byte	.LASF30
+ 703 0021 22010000 		.4byte	.LASF31
+ 704 0025 02       		.uleb128 0x2
+ 705 0026 74553800 		.ascii	"tU8\000"
+ 706 002a 02       		.byte	0x2
+ 707 002b 47       		.byte	0x47
+ 708 002c 30000000 		.4byte	0x30
+ 709 0030 03       		.uleb128 0x3
+ 710 0031 6A000000 		.4byte	.LASF0
+ 711 0035 01       		.byte	0x1
+ 712 0036 08       		.byte	0x8
+ 713 0037 03       		.uleb128 0x3
+ 714 0038 92000000 		.4byte	.LASF1
+ 715 003c 02       		.byte	0x2
+ 716 003d 07       		.byte	0x7
+ 717 003e 03       		.uleb128 0x3
+ 718 003f D8000000 		.4byte	.LASF2
+ 719 0043 04       		.byte	0x4
+ 720 0044 07       		.byte	0x7
+ 721 0045 03       		.uleb128 0x3
+ 722 0046 68010000 		.4byte	.LASF3
+ 723 004a 01       		.byte	0x1
+ 724 004b 06       		.byte	0x6
+ 725 004c 03       		.uleb128 0x3
+ 726 004d 12010000 		.4byte	.LASF4
+ 727 0051 02       		.byte	0x2
+ 728 0052 05       		.byte	0x5
+ 729 0053 04       		.uleb128 0x4
+ 730 0054 696E7400 		.ascii	"int\000"
+ 731 0058 04       		.byte	0x4
+ 732 0059 05       		.byte	0x5
+ 733 005a 05       		.uleb128 0x5
+ 734 005b 74010000 		.4byte	.LASF5
+ 735 005f 02       		.byte	0x2
+ 736 0060 4D       		.byte	0x4d
+ 737 0061 30000000 		.4byte	0x30
+ 738 0065 03       		.uleb128 0x3
+ 739 0066 78000000 		.4byte	.LASF6
+ 740 006a 04       		.byte	0x4
+ 741 006b 07       		.byte	0x7
+ 742 006c 06       		.uleb128 0x6
+ 743 006d 04       		.byte	0x4
+ 744 006e 07       		.uleb128 0x7
+ 745 006f 99000000 		.4byte	0x99
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s 			page 20
+
+
+ 746 0073 01       		.byte	0x1
+ 747 0074 A5000000 		.4byte	.LASF7
+ 748 0078 01       		.byte	0x1
+ 749 0079 55       		.byte	0x55
+ 750 007a 01       		.byte	0x1
+ 751 007b 25000000 		.4byte	0x25
+ 752 007f 00000000 		.4byte	.LFB2
+ 753 0083 50000000 		.4byte	.LFE2
+ 754 0087 01       		.byte	0x1
+ 755 0088 5D       		.byte	0x5d
+ 756 0089 08       		.uleb128 0x8
+ 757 008a F2000000 		.4byte	.LASF9
+ 758 008e 01       		.byte	0x1
+ 759 008f 56       		.byte	0x56
+ 760 0090 25000000 		.4byte	0x25
+ 761 0094 00000000 		.4byte	.LLST1
+ 762 0098 00       		.byte	0x0
+ 763 0099 07       		.uleb128 0x7
+ 764 009a C2000000 		.4byte	0xc2
+ 765 009e 01       		.byte	0x1
+ 766 009f 54010000 		.4byte	.LASF8
+ 767 00a3 01       		.byte	0x1
+ 768 00a4 69       		.byte	0x69
+ 769 00a5 01       		.byte	0x1
+ 770 00a6 25000000 		.4byte	0x25
+ 771 00aa 50000000 		.4byte	.LFB3
+ 772 00ae 60000000 		.4byte	.LFE3
+ 773 00b2 01       		.byte	0x1
+ 774 00b3 5D       		.byte	0x5d
+ 775 00b4 09       		.uleb128 0x9
+ 776 00b5 3C000000 		.4byte	.LASF10
+ 777 00b9 01       		.byte	0x1
+ 778 00ba 6A       		.byte	0x6a
+ 779 00bb 25000000 		.4byte	0x25
+ 780 00bf 01       		.byte	0x1
+ 781 00c0 50       		.byte	0x50
+ 782 00c1 00       		.byte	0x0
+ 783 00c2 0A       		.uleb128 0xa
+ 784 00c3 01       		.byte	0x1
+ 785 00c4 7A010000 		.4byte	.LASF32
+ 786 00c8 01       		.byte	0x1
+ 787 00c9 77       		.byte	0x77
+ 788 00ca 01       		.byte	0x1
+ 789 00cb 25000000 		.4byte	0x25
+ 790 00cf 60000000 		.4byte	.LFB4
+ 791 00d3 6C000000 		.4byte	.LFE4
+ 792 00d7 01       		.byte	0x1
+ 793 00d8 5D       		.byte	0x5d
+ 794 00d9 0B       		.uleb128 0xb
+ 795 00da 0D010000 		.4byte	0x10d
+ 796 00de 01       		.byte	0x1
+ 797 00df 84010000 		.4byte	.LASF11
+ 798 00e3 01       		.byte	0x1
+ 799 00e4 83       		.byte	0x83
+ 800 00e5 01       		.byte	0x1
+ 801 00e6 6C000000 		.4byte	.LFB5
+ 802 00ea E0010000 		.4byte	.LFE5
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s 			page 21
+
+
+ 803 00ee 1E000000 		.4byte	.LLST4
+ 804 00f2 08       		.uleb128 0x8
+ 805 00f3 AD000000 		.4byte	.LASF12
+ 806 00f7 01       		.byte	0x1
+ 807 00f8 84       		.byte	0x84
+ 808 00f9 5A000000 		.4byte	0x5a
+ 809 00fd 3D000000 		.4byte	.LLST5
+ 810 0101 0C       		.uleb128 0xc
+ 811 0102 F2000000 		.4byte	.LASF9
+ 812 0106 01       		.byte	0x1
+ 813 0107 85       		.byte	0x85
+ 814 0108 25000000 		.4byte	0x25
+ 815 010c 00       		.byte	0x0
+ 816 010d 0D       		.uleb128 0xd
+ 817 010e 37010000 		.4byte	0x137
+ 818 0112 01       		.byte	0x1
+ 819 0113 4F000000 		.4byte	.LASF13
+ 820 0117 01       		.byte	0x1
+ 821 0118 4501     		.2byte	0x145
+ 822 011a 01       		.byte	0x1
+ 823 011b E0010000 		.4byte	.LFB7
+ 824 011f 20020000 		.4byte	.LFE7
+ 825 0123 5B000000 		.4byte	.LLST6
+ 826 0127 0E       		.uleb128 0xe
+ 827 0128 1C010000 		.4byte	.LASF14
+ 828 012c 01       		.byte	0x1
+ 829 012d 4601     		.2byte	0x146
+ 830 012f 25000000 		.4byte	0x25
+ 831 0133 02       		.byte	0x2
+ 832 0134 91       		.byte	0x91
+ 833 0135 73       		.sleb128 -13
+ 834 0136 00       		.byte	0x0
+ 835 0137 0F       		.uleb128 0xf
+ 836 0138 61010000 		.4byte	0x161
+ 837 013c 8A000000 		.4byte	.LASF33
+ 838 0140 01       		.byte	0x1
+ 839 0141 3101     		.2byte	0x131
+ 840 0143 01       		.byte	0x1
+ 841 0144 20020000 		.4byte	.LFB6
+ 842 0148 40020000 		.4byte	.LFE6
+ 843 014c 86000000 		.4byte	.LLST7
+ 844 0150 10       		.uleb128 0x10
+ 845 0151 61726700 		.ascii	"arg\000"
+ 846 0155 01       		.byte	0x1
+ 847 0156 3001     		.2byte	0x130
+ 848 0158 6C000000 		.4byte	0x6c
+ 849 015c A5000000 		.4byte	.LLST8
+ 850 0160 00       		.byte	0x0
+ 851 0161 09       		.uleb128 0x9
+ 852 0162 5B000000 		.4byte	.LASF15
+ 853 0166 01       		.byte	0x1
+ 854 0167 3A       		.byte	0x3a
+ 855 0168 25000000 		.4byte	0x25
+ 856 016c 05       		.byte	0x5
+ 857 016d 03       		.byte	0x3
+ 858 016e 00000000 		.4byte	centerReleased
+ 859 0172 09       		.uleb128 0x9
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s 			page 22
+
+
+ 860 0173 CA000000 		.4byte	.LASF16
+ 861 0177 01       		.byte	0x1
+ 862 0178 3B       		.byte	0x3b
+ 863 0179 25000000 		.4byte	0x25
+ 864 017d 05       		.byte	0x5
+ 865 017e 03       		.byte	0x3
+ 866 017f 01000000 		.4byte	keyUpReleased
+ 867 0183 09       		.uleb128 0x9
+ 868 0184 1F000000 		.4byte	.LASF17
+ 869 0188 01       		.byte	0x1
+ 870 0189 3C       		.byte	0x3c
+ 871 018a 25000000 		.4byte	0x25
+ 872 018e 05       		.byte	0x5
+ 873 018f 03       		.byte	0x3
+ 874 0190 02000000 		.4byte	keyDownReleased
+ 875 0194 09       		.uleb128 0x9
+ 876 0195 00000000 		.4byte	.LASF18
+ 877 0199 01       		.byte	0x1
+ 878 019a 3D       		.byte	0x3d
+ 879 019b 25000000 		.4byte	0x25
+ 880 019f 05       		.byte	0x5
+ 881 01a0 03       		.byte	0x3
+ 882 01a1 03000000 		.4byte	keyLeftReleased
+ 883 01a5 09       		.uleb128 0x9
+ 884 01a6 8E010000 		.4byte	.LASF19
+ 885 01aa 01       		.byte	0x1
+ 886 01ab 3E       		.byte	0x3e
+ 887 01ac 25000000 		.4byte	0x25
+ 888 01b0 05       		.byte	0x5
+ 889 01b1 03       		.byte	0x3
+ 890 01b2 04000000 		.4byte	keyRightReleased
+ 891 01b6 09       		.uleb128 0x9
+ 892 01b7 E5000000 		.4byte	.LASF20
+ 893 01bb 01       		.byte	0x1
+ 894 01bc 3F       		.byte	0x3f
+ 895 01bd 25000000 		.4byte	0x25
+ 896 01c1 05       		.byte	0x5
+ 897 01c2 03       		.byte	0x3
+ 898 01c3 02000000 		.4byte	centerKeyCnt
+ 899 01c7 09       		.uleb128 0x9
+ 900 01c8 10000000 		.4byte	.LASF21
+ 901 01cc 01       		.byte	0x1
+ 902 01cd 40       		.byte	0x40
+ 903 01ce 25000000 		.4byte	0x25
+ 904 01d2 05       		.byte	0x5
+ 905 01d3 03       		.byte	0x3
+ 906 01d4 03000000 		.4byte	upKeyCnt
+ 907 01d8 09       		.uleb128 0x9
+ 908 01d9 B5000000 		.4byte	.LASF22
+ 909 01dd 01       		.byte	0x1
+ 910 01de 41       		.byte	0x41
+ 911 01df 25000000 		.4byte	0x25
+ 912 01e3 05       		.byte	0x5
+ 913 01e4 03       		.byte	0x3
+ 914 01e5 04000000 		.4byte	downKeyCnt
+ 915 01e9 09       		.uleb128 0x9
+ 916 01ea 49010000 		.4byte	.LASF23
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s 			page 23
+
+
+ 917 01ee 01       		.byte	0x1
+ 918 01ef 42       		.byte	0x42
+ 919 01f0 25000000 		.4byte	0x25
+ 920 01f4 05       		.byte	0x5
+ 921 01f5 03       		.byte	0x3
+ 922 01f6 05000000 		.4byte	leftKeyCnt
+ 923 01fa 09       		.uleb128 0x9
+ 924 01fb 43000000 		.4byte	.LASF24
+ 925 01ff 01       		.byte	0x1
+ 926 0200 43       		.byte	0x43
+ 927 0201 25000000 		.4byte	0x25
+ 928 0205 05       		.byte	0x5
+ 929 0206 03       		.byte	0x3
+ 930 0207 06000000 		.4byte	rightKeyCnt
+ 931 020b 09       		.uleb128 0x9
+ 932 020c C0000000 		.4byte	.LASF25
+ 933 0210 01       		.byte	0x1
+ 934 0211 45       		.byte	0x45
+ 935 0212 1C020000 		.4byte	0x21c
+ 936 0216 05       		.byte	0x5
+ 937 0217 03       		.byte	0x3
+ 938 0218 00000000 		.4byte	activeKey
+ 939 021c 11       		.uleb128 0x11
+ 940 021d 25000000 		.4byte	0x25
+ 941 0221 09       		.uleb128 0x9
+ 942 0222 07010000 		.4byte	.LASF26
+ 943 0226 01       		.byte	0x1
+ 944 0227 46       		.byte	0x46
+ 945 0228 1C020000 		.4byte	0x21c
+ 946 022c 05       		.byte	0x5
+ 947 022d 03       		.byte	0x3
+ 948 022e 01000000 		.4byte	activeKey2
+ 949 0232 12       		.uleb128 0x12
+ 950 0233 43020000 		.4byte	0x243
+ 951 0237 25000000 		.4byte	0x25
+ 952 023b 13       		.uleb128 0x13
+ 953 023c 65000000 		.4byte	0x65
+ 954 0240 2B01     		.2byte	0x12b
+ 955 0242 00       		.byte	0x0
+ 956 0243 09       		.uleb128 0x9
+ 957 0244 2F000000 		.4byte	.LASF27
+ 958 0248 01       		.byte	0x1
+ 959 0249 48       		.byte	0x48
+ 960 024a 32020000 		.4byte	0x232
+ 961 024e 05       		.byte	0x5
+ 962 024f 03       		.byte	0x3
+ 963 0250 07000000 		.4byte	keyProcStack
+ 964 0254 09       		.uleb128 0x9
+ 965 0255 5D010000 		.4byte	.LASF28
+ 966 0259 01       		.byte	0x1
+ 967 025a 49       		.byte	0x49
+ 968 025b 25000000 		.4byte	0x25
+ 969 025f 05       		.byte	0x5
+ 970 0260 03       		.byte	0x3
+ 971 0261 33010000 		.4byte	keyProcPid
+ 972 0265 00       		.byte	0x0
+ 973              		.section	.debug_abbrev
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s 			page 24
+
+
+ 974 0000 01       		.uleb128 0x1
+ 975 0001 11       		.uleb128 0x11
+ 976 0002 01       		.byte	0x1
+ 977 0003 10       		.uleb128 0x10
+ 978 0004 06       		.uleb128 0x6
+ 979 0005 12       		.uleb128 0x12
+ 980 0006 01       		.uleb128 0x1
+ 981 0007 11       		.uleb128 0x11
+ 982 0008 01       		.uleb128 0x1
+ 983 0009 25       		.uleb128 0x25
+ 984 000a 0E       		.uleb128 0xe
+ 985 000b 13       		.uleb128 0x13
+ 986 000c 0B       		.uleb128 0xb
+ 987 000d 03       		.uleb128 0x3
+ 988 000e 0E       		.uleb128 0xe
+ 989 000f 1B       		.uleb128 0x1b
+ 990 0010 0E       		.uleb128 0xe
+ 991 0011 00       		.byte	0x0
+ 992 0012 00       		.byte	0x0
+ 993 0013 02       		.uleb128 0x2
+ 994 0014 16       		.uleb128 0x16
+ 995 0015 00       		.byte	0x0
+ 996 0016 03       		.uleb128 0x3
+ 997 0017 08       		.uleb128 0x8
+ 998 0018 3A       		.uleb128 0x3a
+ 999 0019 0B       		.uleb128 0xb
+ 1000 001a 3B       		.uleb128 0x3b
+ 1001 001b 0B       		.uleb128 0xb
+ 1002 001c 49       		.uleb128 0x49
+ 1003 001d 13       		.uleb128 0x13
+ 1004 001e 00       		.byte	0x0
+ 1005 001f 00       		.byte	0x0
+ 1006 0020 03       		.uleb128 0x3
+ 1007 0021 24       		.uleb128 0x24
+ 1008 0022 00       		.byte	0x0
+ 1009 0023 03       		.uleb128 0x3
+ 1010 0024 0E       		.uleb128 0xe
+ 1011 0025 0B       		.uleb128 0xb
+ 1012 0026 0B       		.uleb128 0xb
+ 1013 0027 3E       		.uleb128 0x3e
+ 1014 0028 0B       		.uleb128 0xb
+ 1015 0029 00       		.byte	0x0
+ 1016 002a 00       		.byte	0x0
+ 1017 002b 04       		.uleb128 0x4
+ 1018 002c 24       		.uleb128 0x24
+ 1019 002d 00       		.byte	0x0
+ 1020 002e 03       		.uleb128 0x3
+ 1021 002f 08       		.uleb128 0x8
+ 1022 0030 0B       		.uleb128 0xb
+ 1023 0031 0B       		.uleb128 0xb
+ 1024 0032 3E       		.uleb128 0x3e
+ 1025 0033 0B       		.uleb128 0xb
+ 1026 0034 00       		.byte	0x0
+ 1027 0035 00       		.byte	0x0
+ 1028 0036 05       		.uleb128 0x5
+ 1029 0037 16       		.uleb128 0x16
+ 1030 0038 00       		.byte	0x0
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s 			page 25
+
+
+ 1031 0039 03       		.uleb128 0x3
+ 1032 003a 0E       		.uleb128 0xe
+ 1033 003b 3A       		.uleb128 0x3a
+ 1034 003c 0B       		.uleb128 0xb
+ 1035 003d 3B       		.uleb128 0x3b
+ 1036 003e 0B       		.uleb128 0xb
+ 1037 003f 49       		.uleb128 0x49
+ 1038 0040 13       		.uleb128 0x13
+ 1039 0041 00       		.byte	0x0
+ 1040 0042 00       		.byte	0x0
+ 1041 0043 06       		.uleb128 0x6
+ 1042 0044 0F       		.uleb128 0xf
+ 1043 0045 00       		.byte	0x0
+ 1044 0046 0B       		.uleb128 0xb
+ 1045 0047 0B       		.uleb128 0xb
+ 1046 0048 00       		.byte	0x0
+ 1047 0049 00       		.byte	0x0
+ 1048 004a 07       		.uleb128 0x7
+ 1049 004b 2E       		.uleb128 0x2e
+ 1050 004c 01       		.byte	0x1
+ 1051 004d 01       		.uleb128 0x1
+ 1052 004e 13       		.uleb128 0x13
+ 1053 004f 3F       		.uleb128 0x3f
+ 1054 0050 0C       		.uleb128 0xc
+ 1055 0051 03       		.uleb128 0x3
+ 1056 0052 0E       		.uleb128 0xe
+ 1057 0053 3A       		.uleb128 0x3a
+ 1058 0054 0B       		.uleb128 0xb
+ 1059 0055 3B       		.uleb128 0x3b
+ 1060 0056 0B       		.uleb128 0xb
+ 1061 0057 27       		.uleb128 0x27
+ 1062 0058 0C       		.uleb128 0xc
+ 1063 0059 49       		.uleb128 0x49
+ 1064 005a 13       		.uleb128 0x13
+ 1065 005b 11       		.uleb128 0x11
+ 1066 005c 01       		.uleb128 0x1
+ 1067 005d 12       		.uleb128 0x12
+ 1068 005e 01       		.uleb128 0x1
+ 1069 005f 40       		.uleb128 0x40
+ 1070 0060 0A       		.uleb128 0xa
+ 1071 0061 00       		.byte	0x0
+ 1072 0062 00       		.byte	0x0
+ 1073 0063 08       		.uleb128 0x8
+ 1074 0064 34       		.uleb128 0x34
+ 1075 0065 00       		.byte	0x0
+ 1076 0066 03       		.uleb128 0x3
+ 1077 0067 0E       		.uleb128 0xe
+ 1078 0068 3A       		.uleb128 0x3a
+ 1079 0069 0B       		.uleb128 0xb
+ 1080 006a 3B       		.uleb128 0x3b
+ 1081 006b 0B       		.uleb128 0xb
+ 1082 006c 49       		.uleb128 0x49
+ 1083 006d 13       		.uleb128 0x13
+ 1084 006e 02       		.uleb128 0x2
+ 1085 006f 06       		.uleb128 0x6
+ 1086 0070 00       		.byte	0x0
+ 1087 0071 00       		.byte	0x0
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s 			page 26
+
+
+ 1088 0072 09       		.uleb128 0x9
+ 1089 0073 34       		.uleb128 0x34
+ 1090 0074 00       		.byte	0x0
+ 1091 0075 03       		.uleb128 0x3
+ 1092 0076 0E       		.uleb128 0xe
+ 1093 0077 3A       		.uleb128 0x3a
+ 1094 0078 0B       		.uleb128 0xb
+ 1095 0079 3B       		.uleb128 0x3b
+ 1096 007a 0B       		.uleb128 0xb
+ 1097 007b 49       		.uleb128 0x49
+ 1098 007c 13       		.uleb128 0x13
+ 1099 007d 02       		.uleb128 0x2
+ 1100 007e 0A       		.uleb128 0xa
+ 1101 007f 00       		.byte	0x0
+ 1102 0080 00       		.byte	0x0
+ 1103 0081 0A       		.uleb128 0xa
+ 1104 0082 2E       		.uleb128 0x2e
+ 1105 0083 00       		.byte	0x0
+ 1106 0084 3F       		.uleb128 0x3f
+ 1107 0085 0C       		.uleb128 0xc
+ 1108 0086 03       		.uleb128 0x3
+ 1109 0087 0E       		.uleb128 0xe
+ 1110 0088 3A       		.uleb128 0x3a
+ 1111 0089 0B       		.uleb128 0xb
+ 1112 008a 3B       		.uleb128 0x3b
+ 1113 008b 0B       		.uleb128 0xb
+ 1114 008c 27       		.uleb128 0x27
+ 1115 008d 0C       		.uleb128 0xc
+ 1116 008e 49       		.uleb128 0x49
+ 1117 008f 13       		.uleb128 0x13
+ 1118 0090 11       		.uleb128 0x11
+ 1119 0091 01       		.uleb128 0x1
+ 1120 0092 12       		.uleb128 0x12
+ 1121 0093 01       		.uleb128 0x1
+ 1122 0094 40       		.uleb128 0x40
+ 1123 0095 0A       		.uleb128 0xa
+ 1124 0096 00       		.byte	0x0
+ 1125 0097 00       		.byte	0x0
+ 1126 0098 0B       		.uleb128 0xb
+ 1127 0099 2E       		.uleb128 0x2e
+ 1128 009a 01       		.byte	0x1
+ 1129 009b 01       		.uleb128 0x1
+ 1130 009c 13       		.uleb128 0x13
+ 1131 009d 3F       		.uleb128 0x3f
+ 1132 009e 0C       		.uleb128 0xc
+ 1133 009f 03       		.uleb128 0x3
+ 1134 00a0 0E       		.uleb128 0xe
+ 1135 00a1 3A       		.uleb128 0x3a
+ 1136 00a2 0B       		.uleb128 0xb
+ 1137 00a3 3B       		.uleb128 0x3b
+ 1138 00a4 0B       		.uleb128 0xb
+ 1139 00a5 27       		.uleb128 0x27
+ 1140 00a6 0C       		.uleb128 0xc
+ 1141 00a7 11       		.uleb128 0x11
+ 1142 00a8 01       		.uleb128 0x1
+ 1143 00a9 12       		.uleb128 0x12
+ 1144 00aa 01       		.uleb128 0x1
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s 			page 27
+
+
+ 1145 00ab 40       		.uleb128 0x40
+ 1146 00ac 06       		.uleb128 0x6
+ 1147 00ad 00       		.byte	0x0
+ 1148 00ae 00       		.byte	0x0
+ 1149 00af 0C       		.uleb128 0xc
+ 1150 00b0 34       		.uleb128 0x34
+ 1151 00b1 00       		.byte	0x0
+ 1152 00b2 03       		.uleb128 0x3
+ 1153 00b3 0E       		.uleb128 0xe
+ 1154 00b4 3A       		.uleb128 0x3a
+ 1155 00b5 0B       		.uleb128 0xb
+ 1156 00b6 3B       		.uleb128 0x3b
+ 1157 00b7 0B       		.uleb128 0xb
+ 1158 00b8 49       		.uleb128 0x49
+ 1159 00b9 13       		.uleb128 0x13
+ 1160 00ba 00       		.byte	0x0
+ 1161 00bb 00       		.byte	0x0
+ 1162 00bc 0D       		.uleb128 0xd
+ 1163 00bd 2E       		.uleb128 0x2e
+ 1164 00be 01       		.byte	0x1
+ 1165 00bf 01       		.uleb128 0x1
+ 1166 00c0 13       		.uleb128 0x13
+ 1167 00c1 3F       		.uleb128 0x3f
+ 1168 00c2 0C       		.uleb128 0xc
+ 1169 00c3 03       		.uleb128 0x3
+ 1170 00c4 0E       		.uleb128 0xe
+ 1171 00c5 3A       		.uleb128 0x3a
+ 1172 00c6 0B       		.uleb128 0xb
+ 1173 00c7 3B       		.uleb128 0x3b
+ 1174 00c8 05       		.uleb128 0x5
+ 1175 00c9 27       		.uleb128 0x27
+ 1176 00ca 0C       		.uleb128 0xc
+ 1177 00cb 11       		.uleb128 0x11
+ 1178 00cc 01       		.uleb128 0x1
+ 1179 00cd 12       		.uleb128 0x12
+ 1180 00ce 01       		.uleb128 0x1
+ 1181 00cf 40       		.uleb128 0x40
+ 1182 00d0 06       		.uleb128 0x6
+ 1183 00d1 00       		.byte	0x0
+ 1184 00d2 00       		.byte	0x0
+ 1185 00d3 0E       		.uleb128 0xe
+ 1186 00d4 34       		.uleb128 0x34
+ 1187 00d5 00       		.byte	0x0
+ 1188 00d6 03       		.uleb128 0x3
+ 1189 00d7 0E       		.uleb128 0xe
+ 1190 00d8 3A       		.uleb128 0x3a
+ 1191 00d9 0B       		.uleb128 0xb
+ 1192 00da 3B       		.uleb128 0x3b
+ 1193 00db 05       		.uleb128 0x5
+ 1194 00dc 49       		.uleb128 0x49
+ 1195 00dd 13       		.uleb128 0x13
+ 1196 00de 02       		.uleb128 0x2
+ 1197 00df 0A       		.uleb128 0xa
+ 1198 00e0 00       		.byte	0x0
+ 1199 00e1 00       		.byte	0x0
+ 1200 00e2 0F       		.uleb128 0xf
+ 1201 00e3 2E       		.uleb128 0x2e
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s 			page 28
+
+
+ 1202 00e4 01       		.byte	0x1
+ 1203 00e5 01       		.uleb128 0x1
+ 1204 00e6 13       		.uleb128 0x13
+ 1205 00e7 03       		.uleb128 0x3
+ 1206 00e8 0E       		.uleb128 0xe
+ 1207 00e9 3A       		.uleb128 0x3a
+ 1208 00ea 0B       		.uleb128 0xb
+ 1209 00eb 3B       		.uleb128 0x3b
+ 1210 00ec 05       		.uleb128 0x5
+ 1211 00ed 27       		.uleb128 0x27
+ 1212 00ee 0C       		.uleb128 0xc
+ 1213 00ef 11       		.uleb128 0x11
+ 1214 00f0 01       		.uleb128 0x1
+ 1215 00f1 12       		.uleb128 0x12
+ 1216 00f2 01       		.uleb128 0x1
+ 1217 00f3 40       		.uleb128 0x40
+ 1218 00f4 06       		.uleb128 0x6
+ 1219 00f5 00       		.byte	0x0
+ 1220 00f6 00       		.byte	0x0
+ 1221 00f7 10       		.uleb128 0x10
+ 1222 00f8 05       		.uleb128 0x5
+ 1223 00f9 00       		.byte	0x0
+ 1224 00fa 03       		.uleb128 0x3
+ 1225 00fb 08       		.uleb128 0x8
+ 1226 00fc 3A       		.uleb128 0x3a
+ 1227 00fd 0B       		.uleb128 0xb
+ 1228 00fe 3B       		.uleb128 0x3b
+ 1229 00ff 05       		.uleb128 0x5
+ 1230 0100 49       		.uleb128 0x49
+ 1231 0101 13       		.uleb128 0x13
+ 1232 0102 02       		.uleb128 0x2
+ 1233 0103 06       		.uleb128 0x6
+ 1234 0104 00       		.byte	0x0
+ 1235 0105 00       		.byte	0x0
+ 1236 0106 11       		.uleb128 0x11
+ 1237 0107 35       		.uleb128 0x35
+ 1238 0108 00       		.byte	0x0
+ 1239 0109 49       		.uleb128 0x49
+ 1240 010a 13       		.uleb128 0x13
+ 1241 010b 00       		.byte	0x0
+ 1242 010c 00       		.byte	0x0
+ 1243 010d 12       		.uleb128 0x12
+ 1244 010e 01       		.uleb128 0x1
+ 1245 010f 01       		.byte	0x1
+ 1246 0110 01       		.uleb128 0x1
+ 1247 0111 13       		.uleb128 0x13
+ 1248 0112 49       		.uleb128 0x49
+ 1249 0113 13       		.uleb128 0x13
+ 1250 0114 00       		.byte	0x0
+ 1251 0115 00       		.byte	0x0
+ 1252 0116 13       		.uleb128 0x13
+ 1253 0117 21       		.uleb128 0x21
+ 1254 0118 00       		.byte	0x0
+ 1255 0119 49       		.uleb128 0x49
+ 1256 011a 13       		.uleb128 0x13
+ 1257 011b 2F       		.uleb128 0x2f
+ 1258 011c 05       		.uleb128 0x5
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s 			page 29
+
+
+ 1259 011d 00       		.byte	0x0
+ 1260 011e 00       		.byte	0x0
+ 1261 011f 00       		.byte	0x0
+ 1262              		.section	.debug_pubnames,"",%progbits
+ 1263 0000 53000000 		.4byte	0x53
+ 1264 0004 0200     		.2byte	0x2
+ 1265 0006 00000000 		.4byte	.Ldebug_info0
+ 1266 000a 66020000 		.4byte	0x266
+ 1267 000e 6E000000 		.4byte	0x6e
+ 1268 0012 6765744B 		.ascii	"getKeys\000"
+ 1268      65797300 
+ 1269 001a 99000000 		.4byte	0x99
+ 1270 001e 63686563 		.ascii	"checkKey\000"
+ 1270      6B4B6579 
+ 1270      00
+ 1271 0027 C2000000 		.4byte	0xc2
+ 1272 002b 63686563 		.ascii	"checkKey2\000"
+ 1272      6B4B6579 
+ 1272      3200
+ 1273 0035 D9000000 		.4byte	0xd9
+ 1274 0039 73616D70 		.ascii	"sampleKey\000"
+ 1274      6C654B65 
+ 1274      7900
+ 1275 0043 0D010000 		.4byte	0x10d
+ 1276 0047 696E6974 		.ascii	"initKeyProc\000"
+ 1276      4B657950 
+ 1276      726F6300 
+ 1277 0053 00000000 		.4byte	0x0
+ 1278              		.section	.debug_aranges,"",%progbits
+ 1279 0000 1C000000 		.4byte	0x1c
+ 1280 0004 0200     		.2byte	0x2
+ 1281 0006 00000000 		.4byte	.Ldebug_info0
+ 1282 000a 04       		.byte	0x4
+ 1283 000b 00       		.byte	0x0
+ 1284 000c 0000     		.2byte	0x0
+ 1285 000e 0000     		.2byte	0x0
+ 1286 0010 00000000 		.4byte	.Ltext0
+ 1287 0014 40020000 		.4byte	.Letext0-.Ltext0
+ 1288 0018 00000000 		.4byte	0x0
+ 1289 001c 00000000 		.4byte	0x0
+ 1290              		.section	.debug_str,"MS",%progbits,1
+ 1291              	.LASF18:
+ 1292 0000 6B65794C 		.ascii	"keyLeftReleased\000"
+ 1292      65667452 
+ 1292      656C6561 
+ 1292      73656400 
+ 1293              	.LASF21:
+ 1294 0010 75704B65 		.ascii	"upKeyCnt\000"
+ 1294      79436E74 
+ 1294      00
+ 1295              	.LASF30:
+ 1296 0019 6B65792E 		.ascii	"key.c\000"
+ 1296      6300
+ 1297              	.LASF17:
+ 1298 001f 6B657944 		.ascii	"keyDownReleased\000"
+ 1298      6F776E52 
+ 1298      656C6561 
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s 			page 30
+
+
+ 1298      73656400 
+ 1299              	.LASF27:
+ 1300 002f 6B657950 		.ascii	"keyProcStack\000"
+ 1300      726F6353 
+ 1300      7461636B 
+ 1300      00
+ 1301              	.LASF10:
+ 1302 003c 72657456 		.ascii	"retVal\000"
+ 1302      616C00
+ 1303              	.LASF24:
+ 1304 0043 72696768 		.ascii	"rightKeyCnt\000"
+ 1304      744B6579 
+ 1304      436E7400 
+ 1305              	.LASF13:
+ 1306 004f 696E6974 		.ascii	"initKeyProc\000"
+ 1306      4B657950 
+ 1306      726F6300 
+ 1307              	.LASF15:
+ 1308 005b 63656E74 		.ascii	"centerReleased\000"
+ 1308      65725265 
+ 1308      6C656173 
+ 1308      656400
+ 1309              	.LASF0:
+ 1310 006a 756E7369 		.ascii	"unsigned char\000"
+ 1310      676E6564 
+ 1310      20636861 
+ 1310      7200
+ 1311              	.LASF6:
+ 1312 0078 6C6F6E67 		.ascii	"long unsigned int\000"
+ 1312      20756E73 
+ 1312      69676E65 
+ 1312      6420696E 
+ 1312      7400
+ 1313              	.LASF33:
+ 1314 008a 70726F63 		.ascii	"procKey\000"
+ 1314      4B657900 
+ 1315              	.LASF1:
+ 1316 0092 73686F72 		.ascii	"short unsigned int\000"
+ 1316      7420756E 
+ 1316      7369676E 
+ 1316      65642069 
+ 1316      6E7400
+ 1317              	.LASF7:
+ 1318 00a5 6765744B 		.ascii	"getKeys\000"
+ 1318      65797300 
+ 1319              	.LASF12:
+ 1320 00ad 6E6F7468 		.ascii	"nothing\000"
+ 1320      696E6700 
+ 1321              	.LASF22:
+ 1322 00b5 646F776E 		.ascii	"downKeyCnt\000"
+ 1322      4B657943 
+ 1322      6E7400
+ 1323              	.LASF25:
+ 1324 00c0 61637469 		.ascii	"activeKey\000"
+ 1324      76654B65 
+ 1324      7900
+ 1325              	.LASF16:
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s 			page 31
+
+
+ 1326 00ca 6B657955 		.ascii	"keyUpReleased\000"
+ 1326      7052656C 
+ 1326      65617365 
+ 1326      6400
+ 1327              	.LASF2:
+ 1328 00d8 756E7369 		.ascii	"unsigned int\000"
+ 1328      676E6564 
+ 1328      20696E74 
+ 1328      00
+ 1329              	.LASF20:
+ 1330 00e5 63656E74 		.ascii	"centerKeyCnt\000"
+ 1330      65724B65 
+ 1330      79436E74 
+ 1330      00
+ 1331              	.LASF9:
+ 1332 00f2 72656164 		.ascii	"readKeys\000"
+ 1332      4B657973 
+ 1332      00
+ 1333              	.LASF29:
+ 1334 00fb 474E5520 		.ascii	"GNU C 4.1.1\000"
+ 1334      4320342E 
+ 1334      312E3100 
+ 1335              	.LASF26:
+ 1336 0107 61637469 		.ascii	"activeKey2\000"
+ 1336      76654B65 
+ 1336      793200
+ 1337              	.LASF4:
+ 1338 0112 73686F72 		.ascii	"short int\000"
+ 1338      7420696E 
+ 1338      7400
+ 1339              	.LASF14:
+ 1340 011c 6572726F 		.ascii	"error\000"
+ 1340      7200
+ 1341              	.LASF31:
+ 1342 0122 2F637967 		.ascii	"/cygdrive/c/Embedded/eclipse/Demo/2138\000"
+ 1342      64726976 
+ 1342      652F632F 
+ 1342      456D6265 
+ 1342      64646564 
+ 1343              	.LASF23:
+ 1344 0149 6C656674 		.ascii	"leftKeyCnt\000"
+ 1344      4B657943 
+ 1344      6E7400
+ 1345              	.LASF8:
+ 1346 0154 63686563 		.ascii	"checkKey\000"
+ 1346      6B4B6579 
+ 1346      00
+ 1347              	.LASF28:
+ 1348 015d 6B657950 		.ascii	"keyProcPid\000"
+ 1348      726F6350 
+ 1348      696400
+ 1349              	.LASF3:
+ 1350 0168 7369676E 		.ascii	"signed char\000"
+ 1350      65642063 
+ 1350      68617200 
+ 1351              	.LASF5:
+ 1352 0174 74426F6F 		.ascii	"tBool\000"
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s 			page 32
+
+
+ 1352      6C00
+ 1353              	.LASF32:
+ 1354 017a 63686563 		.ascii	"checkKey2\000"
+ 1354      6B4B6579 
+ 1354      3200
+ 1355              	.LASF11:
+ 1356 0184 73616D70 		.ascii	"sampleKey\000"
+ 1356      6C654B65 
+ 1356      7900
+ 1357              	.LASF19:
+ 1358 018e 6B657952 		.ascii	"keyRightReleased\000"
+ 1358      69676874 
+ 1358      52656C65 
+ 1358      61736564 
+ 1358      00
+ 1359              		.ident	"GCC: (GNU) 4.1.1"
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s 			page 33
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 key.c
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s:1      .text:00000000 $t
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s:16     .text:00000000 getKeys
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s:80     .text:0000004c $d
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s:88     .text:00000050 checkKey
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s:85     .text:00000050 $t
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s:106    .text:0000005c $d
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s:487    .bss:00000000 activeKey
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s:114    .text:00000060 checkKey2
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s:111    .text:00000060 $t
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s:128    .text:00000068 $d
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s:489    .bss:00000001 activeKey2
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s:136    .text:0000006c sampleKey
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s:133    .text:0000006c $t
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s:391    .text:000001b0 $d
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s:484    .data:00000000 centerReleased
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s:509    .bss:00000002 centerKeyCnt
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s:494    .data:00000001 keyUpReleased
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s:511    .bss:00000003 upKeyCnt
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s:498    .data:00000002 keyDownReleased
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s:513    .bss:00000004 downKeyCnt
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s:502    .data:00000003 keyLeftReleased
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s:515    .bss:00000005 leftKeyCnt
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s:506    .data:00000004 keyRightReleased
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s:517    .bss:00000006 rightKeyCnt
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s:410    .text:000001e0 initKeyProc
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s:407    .text:000001e0 $t
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s:445    .text:00000214 $d
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s:521    .bss:00000133 keyProcPid
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s:454    .text:00000220 procKey
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s:519    .bss:00000007 keyProcStack
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s:451    .text:00000220 $t
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s:477    .text:00000238 $d
+                             .bss:00000000 $d
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccNoxTEa.s:491    .bss:00000002 $d
+
+UNDEFINED SYMBOLS
+osCreateProcess
+osStartProcess
+osSleep
