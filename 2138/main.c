@@ -87,6 +87,7 @@ void udelay( unsigned int delayInUs )
   while (T1TCR & 0x01)
     ;
 }
+
 /*****************************************************************************
  *
  * Description:
@@ -132,7 +133,7 @@ proc1(void* arg)
 	    if (TRUE == pca9532Present)
 	    {
             setPca9532Pin(pin, 0);
-            udelay(401000);
+            udelay(400000);
             setPca9532Pin(pin, 1);
             pin = (pin + 1) % 16;
         }
@@ -313,7 +314,7 @@ readTouch(tU8 id, tU32 *pCount)
 static void
 proc2(void* arg)
 {
- tU8 pca9532Present = FALSE;
+  tU8 pca9532Present = FALSE;
   
   osSleep(50);
   
@@ -323,21 +324,56 @@ proc2(void* arg)
   if (TRUE == pca9532Present)
   {
     lcdInit();
-
+    initAdc();
     drawWelcome();
-    
+
     initKeyProc();
 
+	char bufferX[10];
+	char bufferY[10];
+
+    IODIR |= (1<<13)|(1<<14);
+    IOCLR = (1<<13)|(1<<14);
+
+    tU16 refXvalue = getAnalogueInput1(ACCEL_X);
+    tU16 refYvalue = getAnalogueInput1(ACCEL_Y);
+
+    lcdClrscr();
+    int counter = 0;
     for(;;) {
         tU8 keyPressed;
         keyPressed = checkKey();
 
-        if(keyPressed != KEY_NOTHING) {
-            if (keyPressed == KEY_UP)
-            {
-                playWithTheBall();
-            }
-        }
+//        if(keyPressed != KEY_NOTHING) {
+//            if (keyPressed == KEY_UP)
+//            {
+//                //playWithTheBall();
+//            }
+//        }
+
+    	tU16 inputX = getAnalogueInput1(ACCEL_X);
+    	tU16 inputY = getAnalogueInput1(ACCEL_Y);
+
+    	lcdPuts(bufferY);
+
+    	int valueX = refXvalue - inputX;
+    	int valueY = refYvalue - inputY;
+
+    	sprintf(bufferX,"%d",valueX);
+    	sprintf(bufferY,"%d",valueY);
+
+        lcdClrscr();
+    	lcdGotoxy(20,16);
+    	lcdPuts("X = ");
+    	lcdGotoxy(48,16);
+    	lcdPuts(bufferX);
+    	lcdGotoxy(12,30);
+    	lcdPuts("Y = ");
+    	lcdGotoxy(40,30);
+    	lcdPuts(bufferY);
+
+    	osSleep(100);
+    	counter = (counter + 1) % 10;
     }
 
   }
@@ -347,14 +383,16 @@ static void
 drawWelcome(void) {
     lcdColor(0xff,0x00);
     lcdClrscr();
-    lcdGotoxy(16,66);
+    lcdGotoxy(20,16);
     lcdPuts("Welcome to");
-    lcdGotoxy(20,80);
+    lcdGotoxy(12,30);
     lcdPuts("Ball The Game");
-    lcdGotoxy(0,96);
+    lcdGotoxy(58,64);
     lcdPuts(":)");
-    lcdGotoxy(8,112);
-    lcdPuts("(C)2022 (0.1.0v))");
+    lcdGotoxy(33,98);
+    lcdPuts("(C) 2022");
+    lcdGotoxy(32,112);
+    lcdPuts("(0.0.XDv)");
 }
 
 static void 
@@ -447,8 +485,8 @@ initProc(void* arg)
 
   eaInit();   //initialize printf
   i2cInit();  //initialize I2C
-  osCreateProcess(proc1, proc1Stack, PROC1_STACK_SIZE, &pid1, 3, NULL, &error);
-  osStartProcess(pid1, &error);
+//  osCreateProcess(proc1, proc1Stack, PROC1_STACK_SIZE, &pid1, 3, NULL, &error);
+//  osStartProcess(pid1, &error);
   osCreateProcess(proc2, proc2Stack, PROC2_STACK_SIZE, &pid2, 3, NULL, &error);
   osStartProcess(pid2, &error);
 

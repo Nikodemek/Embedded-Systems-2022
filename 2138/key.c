@@ -86,10 +86,10 @@ getKeys(void)
   tU8 readKeys = KEY_NOTHING;
 
   if ((IOPIN & KEYPIN_CENTER) == 0) readKeys |= KEY_CENTER;
-  if ((IOPIN & KEYPIN_UP) == 0)     readKeys |= KEY_UP;
-  if ((IOPIN & KEYPIN_DOWN) == 0)   readKeys |= KEY_DOWN;
-  if ((IOPIN & KEYPIN_LEFT) == 0)   readKeys |= KEY_LEFT;
-  if ((IOPIN & KEYPIN_RIGHT) == 0)  readKeys |= KEY_RIGHT;
+  else if ((IOPIN & KEYPIN_UP) == 0)     readKeys |= KEY_UP;
+  else if ((IOPIN & KEYPIN_DOWN) == 0)   readKeys |= KEY_DOWN;
+  else if ((IOPIN & KEYPIN_LEFT) == 0)   readKeys |= KEY_LEFT;
+  else if ((IOPIN & KEYPIN_RIGHT) == 0)  readKeys |= KEY_RIGHT;
 
   return readKeys;
 }
