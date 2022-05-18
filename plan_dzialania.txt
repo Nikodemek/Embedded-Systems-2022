@@ -1,0 +1,25 @@
+Grupa E06
+Bartosz Siekański 236646
+Nikodem Kirsz 236559
+Oskar Trela 236677
+
+Ball The Game
+
+lider:
+Oskar Trela
+
+Funkcjonalności:
+ 1. sterowanie joy-stickiem GPIO
+ 2. sterowanie akcelerometrem ACC+ADC
+ 3. dźwięki i muzyka DAC + Timer
+ 4. diody (procent przejścia poziomu) I2c+pca92xx
+ 5. ekran SPI+nokia6100
+ 6. encoder do zmiany prędkości gry ADC
+ 7. przyciski (start, reset, pauza)
+ 8. timer
+
+Checkpoint:
+ - odpalanie diod
+ - wyświetlanie na ekranie
+ - timer
+ 

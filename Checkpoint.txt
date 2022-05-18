@@ -1,0 +1,18 @@
+Grupa E06
+Bartosz Siekański 236646
+Nikodem Kirsz 236559
+Oskar Trela 236677
+
+Ball The Game
+
+lider:
+Oskar Trela
+
+
+Na Checkpoint naszym zadaniem było zrozumienie, przetestowanie i wykorzystanie w praktyce:
+-- włączania i wyłączania diod
+-- wyświetlania kształtów na ekranie LCD
+-- timera
+
+Zadanie to udało nam się spełnić.
+
