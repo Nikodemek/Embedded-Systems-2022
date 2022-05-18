@@ -30,13 +30,16 @@
 static tU8 proc1Stack[PROC1_STACK_SIZE];
 static tU8 proc2Stack[PROC2_STACK_SIZE];
 static tU8 accXCtrlStack[ACC_X_CTRL_STACK_SIZE];
+static tU8 accYCtrlStack[ACC_X_CTRL_STACK_SIZE];
 static tU8 initStack[INIT_STACK_SIZE];
 static tU8 pid1;
 static tU8 pid2;
 static tU8 pidAccXCtrl;
+static tU8 pidAccYCtrl;
 
 static tU8 lcdHeight = 130;
 static tU8 lcdWidth = 130;
+static tU16 refXValue, refYValue;
 
 struct Ball
 {
@@ -44,7 +47,7 @@ struct Ball
   int yPos;
   int radius;
   int speed;
-};
+} ball1;
 
 enum Direction
 {
@@ -386,8 +389,8 @@ moveBall(struct Ball *ball, tU8 dir)
   overdrawBall(ball, 0xFF);
 }
 
-static void
-accControlX(struct Ball *ball, tU16 refValue)
+void
+accControlXProc()
 {
   tU32 delay;
   tU16 input, value, strength;
@@ -396,7 +399,46 @@ accControlX(struct Ball *ball, tU16 refValue)
   for(;;)
   {
     input = getAnalogueInput1(ACCEL_X);
-    value - refValue - input;
+    value = refXValue - input;
+
+    if (value > 0)
+    {
+      dir = KEY_RIGHT;
+    }
+    else 
+    {
+      dir = KEY_LEFT;
+    }
+
+    strength = abs(value / 20);
+    if (strength == 0)
+    {
+      delay = 10;
+    }
+    else
+    {
+      if (strength > 5)
+      {
+        strength = 5;
+      }
+      delay = 100 - 10 * strength;
+    }
+    moveBall(dir);
+    osSleep(delay);
+  }
+}
+
+void
+accControlXProc()
+{
+  tU32 delay;
+  tU16 input, value, strength;
+  tU8 dir;
+
+  for(;;)
+  {
+    input = getAnalogueInput1(ACCEL_X);
+    value = refYValue - input;
 
     if (value > 0)
     {
@@ -420,15 +462,14 @@ accControlX(struct Ball *ball, tU16 refValue)
       }
       delay = 100 - 10 * strength;
     }
-    moveBall(ball, dir);
+    moveBall(dir);
     osSleep(delay);
   }
 }
 
-static void
+void
 accControllProc()
 {
-  struct Ball ball;
   ball.xPos = 10;
   ball.yPos = 10;
   ball.speed = 5;
@@ -437,14 +478,21 @@ accControllProc()
   lcdClrscr();
   lcdColor(0x00, 0xFF);
   lcdRect(ball.xPos, ball.yPos, ball.radius, ball.radius, 0xFF);
+  lcdClrscr();
 
   IODIR |= (1 << 13) | (1 << 14);
   IOCLR = (1 << 13) | (1 << 14);
 
-  tU16 refXvalue = getAnalogueInput1(ACCEL_X);
-  tU16 refYvalue = getAnalogueInput1(ACCEL_Y);
+  refXValue = getAnalogueInput1(ACCEL_X);
+  refYValue = getAnalogueInput1(ACCEL_Y);
   
-  accControlX(&ball, refXvalue);
+  tU8 error;
+
+  osCreateProcess(accControlXProc, accXCtrlStack, ACC_X_CTRL_STACK_SIZE, &pidAccXCtrl, 4, NULL, &error);
+  osStartProcess(pidAccXCtrl, &error);
+  osCreateProcess(accControlYProc, accYCtrlStack, ACC_Y_CTRL_STACK_SIZE, &pidAccYCtrl, 4, NULL, &error);
+  osStartProcess(pidAccYCtrl, &error);
+
 }
 
 static void
