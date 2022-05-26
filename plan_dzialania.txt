@@ -11,12 +11,11 @@ Oskar Trela
 Funkcjonalności:
  1. sterowanie joy-stickiem GPIO
  2. sterowanie akcelerometrem ACC+ADC
- 3. dźwięki i muzyka DAC + Timer
- 4. diody (procent przejścia poziomu) I2c+pca92xx
- 5. ekran SPI+nokia6100
- 6. encoder do zmiany prędkości gry ADC
- 7. przyciski (start, reset, pauza)
- 8. timer
+ 3. diody (procent przejścia poziomu) I2c+pca92xx
+ 4. ekran SPI+nokia6100
+ 5. encoder do zmiany prędkości gry ADC
+ 6. przyciski (start, reset, pauza)
+ 7. timer
 
 Checkpoint:
  - odpalanie diod
