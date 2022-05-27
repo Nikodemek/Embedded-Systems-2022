@@ -1,0 +1,15 @@
+what,kind,bundleId,bundleVersion,description,time
+java.vm.specification.vendor,sysinfo,,,"Sun Microsystems Inc.",1652869849770
+java.vm.specification.version,sysinfo,,,"1.0",1652869849770
+java.vm.vendor,sysinfo,,,"Sun Microsystems Inc.",1652869849770
+java.vm.version,sysinfo,,,"20.2-b06",1652869849770
+deactivated,workbench,org.eclipse.ui.workbench,3.5.2.M20100113-0800,"",1652869850832
+activated,workbench,org.eclipse.ui.workbench,3.5.2.M20100113-0800,"",1652869851879
+closed,workbench,org.eclipse.ui.workbench,3.5.2.M20100113-0800,"",1652869851926
+stopped,bundle,org.eclipse.compare.win32,1.0.0.I20090430-0408,"org.eclipse.compare.win32",1652869852082
+stopped,bundle,com.zylin.embeddedcdt,4.11.1,"com.zylin.embeddedcdt",1652869852082
+stopped,bundle,org.eclipse.cdt.debug.mi.ui,6.0.0.200909110608,"org.eclipse.cdt.debug.mi.ui",1652869852114
+stopped,bundle,org.eclipse.cdt.dsf.gdb.ui,2.0.0.200909110608,"org.eclipse.cdt.dsf.gdb.ui",1652869852129
+stopped,bundle,org.eclipse.cdt.dsf.ui,2.0.1.200909110608,"org.eclipse.cdt.dsf.ui",1652869852129
+stopped,bundle,org.eclipse.cdt.launch,6.0.0.200909110608,"org.eclipse.cdt.launch",1652869852129
+stopped,bundle,org.eclipse.cdt.debug.ui,6.0.0.200909110608,"org.eclipse.cdt.debug.ui",1652869852129

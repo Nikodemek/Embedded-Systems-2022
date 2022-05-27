@@ -1,4 +1,4 @@
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 1
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 1
 
 
    1              		.code	16
@@ -58,7 +58,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 1
   33:adc.c         ****  ****************************************************************************/
   34:adc.c         **** void
   35:adc.c         **** delayMs(tU16 delayInMs)
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 2
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 2
 
 
   36:adc.c         **** {
@@ -118,7 +118,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 1
   60 0030 FBD4     		bmi	.L2
   49:adc.c         ****     ;
   50:adc.c         **** }
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 3
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 3
 
 
   61              		.loc 1 50 0
@@ -178,7 +178,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 1
   89              		.loc 1 68 0
   90 004e 0006     		lsl	r0, r0, #24
   91              	.LVL4:
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 4
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 4
 
 
   92              		.loc 1 76 0
@@ -238,7 +238,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 1
  133              	.LFB4:
   90:adc.c         **** 
   91:adc.c         **** tU16
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 5
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 5
 
 
   92:adc.c         **** getAnalogueInput1(tU8 channel)
@@ -298,7 +298,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 1
  111:adc.c         **** //  restoreIrq(cpsrReg);
  112:adc.c         ****   
  113:adc.c         ****   return returnResult;
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 6
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 6
 
 
  114:adc.c         **** }
@@ -358,7 +358,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 1
  200 00c4 1B01     		lsl	r3, r3, #4
  201 00c6 1A43     		orr	r2, r2, r3
  202 00c8 0A60     		str	r2, [r1]
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 7
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 7
 
 
  137:adc.c         **** 
@@ -418,7 +418,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 1
  237 0100 104B     		ldr	r3, .L27+24
  238              		.loc 1 123 0
  239 0102 81B0     		sub	sp, sp, #4
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 8
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 8
 
 
  240              	.LCFI3:
@@ -478,7 +478,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 1
  268              		@ sp needed for prologue
  269 0126 10BC     		pop	{r4}
  270 0128 01BC     		pop	{r0}
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 9
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 9
 
 
  271 012a 0047     		bx	r0
@@ -538,7 +538,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 1
  325              	.LEFDE2:
  326              	.LSFDE4:
  327 0038 14000000 		.4byte	.LEFDE4-.LASFDE4
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 10
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 10
 
 
  328              	.LASFDE4:
@@ -598,7 +598,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 1
  382 0028 5D       		.byte	0x5d
  383 0029 46000000 		.4byte	.LCFI0-.Ltext0
  384 002d 7C000000 		.4byte	.LFE3-.Ltext0
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 11
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 11
 
 
  385 0031 0200     		.2byte	0x2
@@ -658,7 +658,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 1
  439 00bb 00000000 		.4byte	0x0
  440 00bf 00000000 		.4byte	0x0
  441              		.section	.debug_info
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 12
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 12
 
 
  442 0000 31010000 		.4byte	0x131
@@ -672,7 +672,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 1
  450 0018 92000000 		.4byte	.LASF15
  451 001c 01       		.byte	0x1
  452 001d B5000000 		.4byte	.LASF16
- 453 0021 00000000 		.4byte	.LASF17
+ 453 0021 53000000 		.4byte	.LASF17
  454 0025 02       		.uleb128 0x2
  455 0026 74553800 		.ascii	"tU8\000"
  456 002a 02       		.byte	0x2
@@ -688,7 +688,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 1
  466 003d 48       		.byte	0x48
  467 003e 42000000 		.4byte	0x42
  468 0042 03       		.uleb128 0x3
- 469 0043 67000000 		.4byte	.LASF2
+ 469 0043 40000000 		.4byte	.LASF2
  470 0047 02       		.byte	0x2
  471 0048 07       		.byte	0x7
  472 0049 04       		.uleb128 0x4
@@ -697,11 +697,11 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 1
  475 004f 49       		.byte	0x49
  476 0050 54000000 		.4byte	0x54
  477 0054 03       		.uleb128 0x3
- 478 0055 27000000 		.4byte	.LASF4
+ 478 0055 00000000 		.4byte	.LASF4
  479 0059 04       		.byte	0x4
  480 005a 07       		.byte	0x7
  481 005b 03       		.uleb128 0x3
- 482 005c 4E000000 		.4byte	.LASF5
+ 482 005c 27000000 		.4byte	.LASF5
  483 0060 01       		.byte	0x1
  484 0061 06       		.byte	0x6
  485 0062 03       		.uleb128 0x3
@@ -715,10 +715,10 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 1
  493 0070 06       		.uleb128 0x6
  494 0071 97000000 		.4byte	0x97
  495 0075 01       		.byte	0x1
- 496 0076 3C000000 		.4byte	.LASF7
+ 496 0076 15000000 		.4byte	.LASF7
  497 007a 01       		.byte	0x1
  498 007b 24       		.byte	0x24
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 13
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 13
 
 
  499 007c 01       		.byte	0x1
@@ -727,7 +727,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 1
  502 0085 01       		.byte	0x1
  503 0086 5D       		.byte	0x5d
  504 0087 07       		.uleb128 0x7
- 505 0088 44000000 		.4byte	.LASF9
+ 505 0088 1D000000 		.4byte	.LASF9
  506 008c 01       		.byte	0x1
  507 008d 23       		.byte	0x23
  508 008e 37000000 		.4byte	0x37
@@ -745,13 +745,13 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 1
  520 00ac 7C000000 		.4byte	.LFE3
  521 00b0 1E000000 		.4byte	.LLST2
  522 00b4 07       		.uleb128 0x7
- 523 00b5 34000000 		.4byte	.LASF10
+ 523 00b5 0D000000 		.4byte	.LASF10
  524 00b9 01       		.byte	0x1
  525 00ba 43       		.byte	0x43
  526 00bb 25000000 		.4byte	0x25
  527 00bf 3D000000 		.4byte	.LLST3
  528 00c3 09       		.uleb128 0x9
- 529 00c4 5A000000 		.4byte	.LASF12
+ 529 00c4 33000000 		.4byte	.LASF12
  530 00c8 01       		.byte	0x1
  531 00c9 46       		.byte	0x46
  532 00ca 37000000 		.4byte	0x37
@@ -768,17 +768,17 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 1
  543 00e4 B4000000 		.4byte	.LFE4
  544 00e8 5B000000 		.4byte	.LLST4
  545 00ec 07       		.uleb128 0x7
- 546 00ed 34000000 		.4byte	.LASF10
+ 546 00ed 0D000000 		.4byte	.LASF10
  547 00f1 01       		.byte	0x1
  548 00f2 5C       		.byte	0x5c
  549 00f3 25000000 		.4byte	0x25
  550 00f7 7A000000 		.4byte	.LLST5
  551 00fb 09       		.uleb128 0x9
- 552 00fc 5A000000 		.4byte	.LASF12
+ 552 00fc 33000000 		.4byte	.LASF12
  553 0100 01       		.byte	0x1
  554 0101 5F       		.byte	0x5f
  555 0102 37000000 		.4byte	0x37
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 14
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 14
 
 
  556 0106 00       		.byte	0x0
@@ -838,7 +838,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 1
  610 001e 00       		.byte	0x0
  611 001f 00       		.byte	0x0
  612 0020 03       		.uleb128 0x3
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 15
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 15
 
 
  613 0021 24       		.uleb128 0x24
@@ -898,7 +898,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 1
  667 0057 0A       		.uleb128 0xa
  668 0058 00       		.byte	0x0
  669 0059 00       		.byte	0x0
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 16
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 16
 
 
  670 005a 07       		.uleb128 0x7
@@ -958,7 +958,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 1
  724 0090 2E       		.uleb128 0x2e
  725 0091 01       		.byte	0x1
  726 0092 01       		.uleb128 0x1
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 17
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 17
 
 
  727 0093 13       		.uleb128 0x13
@@ -1018,7 +1018,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 1
  777      6E707574 
  777      3000
  778 0030 CF000000 		.4byte	0xcf
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 18
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 18
 
 
  779 0034 67657441 		.ascii	"getAnalogueInput1\000"
@@ -1043,45 +1043,45 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 1
  793 0018 00000000 		.4byte	0x0
  794 001c 00000000 		.4byte	0x0
  795              		.section	.debug_str,"MS",%progbits,1
- 796              	.LASF17:
- 797 0000 2F637967 		.ascii	"/cygdrive/c/Embedded/2138MiniDemo/2138\000"
- 797      64726976 
- 797      652F632F 
- 797      456D6265 
- 797      64646564 
- 798              	.LASF4:
- 799 0027 756E7369 		.ascii	"unsigned int\000"
- 799      676E6564 
- 799      20696E74 
- 799      00
- 800              	.LASF10:
- 801 0034 6368616E 		.ascii	"channel\000"
- 801      6E656C00 
- 802              	.LASF7:
- 803 003c 64656C61 		.ascii	"delayMs\000"
- 803      794D7300 
- 804              	.LASF9:
- 805 0044 64656C61 		.ascii	"delayInMs\000"
- 805      79496E4D 
- 805      7300
- 806              	.LASF5:
- 807 004e 7369676E 		.ascii	"signed char\000"
- 807      65642063 
- 807      68617200 
- 808              	.LASF12:
- 809 005a 72657475 		.ascii	"returnResult\000"
- 809      726E5265 
- 809      73756C74 
- 809      00
- 810              	.LASF2:
- 811 0067 73686F72 		.ascii	"short unsigned int\000"
- 811      7420756E 
- 811      7369676E 
- 811      65642069 
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 19
+ 796              	.LASF4:
+ 797 0000 756E7369 		.ascii	"unsigned int\000"
+ 797      676E6564 
+ 797      20696E74 
+ 797      00
+ 798              	.LASF10:
+ 799 000d 6368616E 		.ascii	"channel\000"
+ 799      6E656C00 
+ 800              	.LASF7:
+ 801 0015 64656C61 		.ascii	"delayMs\000"
+ 801      794D7300 
+ 802              	.LASF9:
+ 803 001d 64656C61 		.ascii	"delayInMs\000"
+ 803      79496E4D 
+ 803      7300
+ 804              	.LASF5:
+ 805 0027 7369676E 		.ascii	"signed char\000"
+ 805      65642063 
+ 805      68617200 
+ 806              	.LASF12:
+ 807 0033 72657475 		.ascii	"returnResult\000"
+ 807      726E5265 
+ 807      73756C74 
+ 807      00
+ 808              	.LASF2:
+ 809 0040 73686F72 		.ascii	"short unsigned int\000"
+ 809      7420756E 
+ 809      7369676E 
+ 809      65642069 
+ 809      6E7400
+ 810              	.LASF17:
+ 811 0053 2F637967 		.ascii	"/cygdrive/c/Embedded/eclipse/Demo/2138\000"
+ 811      64726976 
+ 811      652F632F 
+ 811      456D6265 
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 19
 
 
- 811      6E7400
+ 811      64646564 
  812              	.LASF6:
  813 007a 73686F72 		.ascii	"short int\000"
  813      7420696E 
@@ -1125,22 +1125,22 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 1
  831 00e3 74553136 		.ascii	"tU16\000"
  831      00
  832              		.ident	"GCC: (GNU) 4.1.1"
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s 			page 20
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 20
 
 
 DEFINED SYMBOLS
                             *ABS*:00000000 adc.c
-/cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s:1      .text:00000000 $t
-/cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s:16     .text:00000000 delayMs
-/cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s:67     .text:00000034 $d
-/cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s:78     .text:00000044 getAnalogueInput0
-/cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s:75     .text:00000044 $t
-/cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s:123    .text:00000074 $d
-/cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s:132    .text:0000007c getAnalogueInput1
-/cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s:129    .text:0000007c $t
-/cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s:177    .text:000000ac $d
-/cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s:186    .text:000000b4 initAdc
-/cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s:183    .text:000000b4 $t
-/cygdrive/c/Users/embedded/AppData/Local/Temp/ccJq86RL.s:275    .text:0000012c $d
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s:1      .text:00000000 $t
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s:16     .text:00000000 delayMs
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s:67     .text:00000034 $d
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s:78     .text:00000044 getAnalogueInput0
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s:75     .text:00000044 $t
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s:123    .text:00000074 $d
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s:132    .text:0000007c getAnalogueInput1
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s:129    .text:0000007c $t
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s:177    .text:000000ac $d
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s:186    .text:000000b4 initAdc
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s:183    .text:000000b4 $t
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s:275    .text:0000012c $d
 
 NO UNDEFINED SYMBOLS
