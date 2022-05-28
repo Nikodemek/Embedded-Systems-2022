@@ -302,9 +302,15 @@ diodsShowOff(tU16 delay)
 static void
 gameTimeProc()
 {
+    tU8 hoodlum = 0;
     while (isInProgress)
     {
         gameTime++;
+        if (hoodlum++ >= 50)
+        {
+            hoodlum = 0;
+            obstacleDelay -= (obstacleDelay / 15);
+        }
         osSleep(100);
     }
 
