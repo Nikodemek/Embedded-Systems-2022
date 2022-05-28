@@ -105,6 +105,12 @@ calculateDelay(tU16 strength)
     return 136 - 16 * strength;     // linear
 }
 
+static tU16
+getScore()
+{
+    return gameTime * 10;
+}
+
 static tBool
 isCollision(Obstacle *obstacle)
 {
