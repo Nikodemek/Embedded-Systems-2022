@@ -1,4 +1,4 @@
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 1
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJUJGyc.s 			page 1
 
 
    1              		.code	16
@@ -58,7 +58,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 1
   33:adc.c         ****  ****************************************************************************/
   34:adc.c         **** void
   35:adc.c         **** delayMs(tU16 delayInMs)
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 2
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJUJGyc.s 			page 2
 
 
   36:adc.c         **** {
@@ -110,18 +110,17 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 1
   55              	.L2:
   46:adc.c         **** 
   47:adc.c         ****   //wait until delay time has elapsed
-  48:adc.c         ****   while (T1TCR & 0x01)
+  48:adc.c         ****   while (T1TCR & 0x01);
   56              		.loc 1 48 0
   57 002a 024B     		ldr	r3, .L7
   58 002c 1B68     		ldr	r3, [r3]
   59 002e DA07     		lsl	r2, r3, #31
   60 0030 FBD4     		bmi	.L2
-  49:adc.c         ****     ;
-  50:adc.c         **** }
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 3
+  49:adc.c         **** }
+  61              		.loc 1 49 0
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJUJGyc.s 			page 3
 
 
-  61              		.loc 1 50 0
   62              		@ sp needed for prologue
   63 0032 7047     		bx	lr
   64              	.L8:
@@ -140,53 +139,53 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 1
   77              		.type	getAnalogueInput0, %function
   78              	getAnalogueInput0:
   79              	.LFB3:
+  50:adc.c         **** 
   51:adc.c         **** 
-  52:adc.c         **** 
-  53:adc.c         **** /*****************************************************************************
-  54:adc.c         ****  *
-  55:adc.c         ****  * Description:
-  56:adc.c         ****  *    Start a conversion of one selected analogue input and return
-  57:adc.c         ****  *    10-bit result.
-  58:adc.c         ****  *
-  59:adc.c         ****  * Params:
-  60:adc.c         ****  *    [in] channel - analogue input channel to convert.
-  61:adc.c         ****  *
-  62:adc.c         ****  * Return:
-  63:adc.c         ****  *    10-bit conversion result
-  64:adc.c         ****  *
-  65:adc.c         ****  ****************************************************************************/
-  66:adc.c         **** tU16
-  67:adc.c         **** getAnalogueInput0(tU8 channel)
-  68:adc.c         **** {
-  80              		.loc 1 68 0
+  52:adc.c         **** /*****************************************************************************
+  53:adc.c         ****  *
+  54:adc.c         ****  * Description:
+  55:adc.c         ****  *    Start a conversion of one selected analogue input and return
+  56:adc.c         ****  *    10-bit result.
+  57:adc.c         ****  *
+  58:adc.c         ****  * Params:
+  59:adc.c         ****  *    [in] channel - analogue input channel to convert.
+  60:adc.c         ****  *
+  61:adc.c         ****  * Return:
+  62:adc.c         ****  *    10-bit conversion result
+  63:adc.c         ****  *
+  64:adc.c         ****  ****************************************************************************/
+  65:adc.c         **** tU16
+  66:adc.c         **** getAnalogueInput0(tU8 channel)
+  67:adc.c         **** {
+  80              		.loc 1 67 0
   81 0044 10B5     		push	{r4, lr}
   82              	.LCFI0:
   83              	.LVL3:
-  69:adc.c         **** //  volatile tU32 cpsrReg;
-  70:adc.c         ****   tU16 returnResult;
-  71:adc.c         **** 
-  72:adc.c         ****   //disable IRQ
-  73:adc.c         **** //  cpsrReg = disIrq();
-  74:adc.c         **** 
-  75:adc.c         **** 	//start conversion now (for selected channel)
-  76:adc.c         **** 	ADCR = (ADCR & 0xFFFFFF00) | (1 << channel) | (1 << 24);
-  84              		.loc 1 76 0
+  68:adc.c         **** //  volatile tU32 cpsrReg;
+  69:adc.c         ****   tU16 returnResult;
+  70:adc.c         **** 
+  71:adc.c         ****   //disable IRQ
+  72:adc.c         **** //  cpsrReg = disIrq();
+  73:adc.c         **** 
+  74:adc.c         **** 	//start conversion now (for selected channel)
+  75:adc.c         **** 	ADCR = (ADCR & 0xFFFFFF00) | (1 << channel) | (1 << 24);
+  84              		.loc 1 75 0
   85 0046 0B4C     		ldr	r4, .L15
   86 0048 2268     		ldr	r2, [r4]
   87 004a FF23     		mov	r3, #255
   88 004c 9A43     		bic	r2, r2, r3
-  89              		.loc 1 68 0
+  89              		.loc 1 67 0
   90 004e 0006     		lsl	r0, r0, #24
   91              	.LVL4:
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 4
+  92              		.loc 1 75 0
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJUJGyc.s 			page 4
 
 
-  92              		.loc 1 76 0
   93 0050 8023     		mov	r3, #128
-  94              		.loc 1 68 0
+  94              		.loc 1 67 0
   95 0052 000E     		lsr	r0, r0, #24
   96              	.LVL5:
-  97              		.loc 1 76 0
+  97              		.loc 1 75 0
   98 0054 0121     		mov	r1, #1
   99 0056 5B04     		lsl	r3, r3, #17
  100 0058 8140     		lsl	r1, r1, r0
@@ -194,30 +193,30 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 1
  102 005c 1143     		orr	r1, r1, r2
  103 005e 2160     		str	r1, [r4]
  104              	.L10:
-  77:adc.c         **** 	
-  78:adc.c         **** 	//wait til done
-  79:adc.c         **** 	while((ADDR & 0x80000000) == 0)
- 105              		.loc 1 79 0
+  76:adc.c         **** 	
+  77:adc.c         **** 	//wait til done
+  78:adc.c         **** 	while((ADDR & 0x80000000) == 0)
+ 105              		.loc 1 78 0
  106 0060 0548     		ldr	r0, .L15+4
  107              	.LVL6:
  108 0062 0368     		ldr	r3, [r0]
  109 0064 002B     		cmp	r3, #0
  110 0066 FBDA     		bge	.L10
-  80:adc.c         **** 	  ;
-  81:adc.c         **** 
-  82:adc.c         **** 	//get result and adjust to 10-bit integer
-  83:adc.c         **** 	returnResult = (ADDR>>6) & 0x3FF;
- 111              		.loc 1 83 0
+  79:adc.c         **** 	  ;
+  80:adc.c         **** 
+  81:adc.c         **** 	//get result and adjust to 10-bit integer
+  82:adc.c         **** 	returnResult = (ADDR>>6) & 0x3FF;
+ 111              		.loc 1 82 0
  112 0068 0068     		ldr	r0, [r0]
  113 006a 0004     		lsl	r0, r0, #16
  114 006c 800D     		lsr	r0, r0, #22
-  84:adc.c         **** 
-  85:adc.c         ****   //enable IRQ
-  86:adc.c         **** //  restoreIrq(cpsrReg);
-  87:adc.c         ****   
-  88:adc.c         ****   return returnResult;
-  89:adc.c         **** }
- 115              		.loc 1 89 0
+  83:adc.c         **** 
+  84:adc.c         ****   //enable IRQ
+  85:adc.c         **** //  restoreIrq(cpsrReg);
+  86:adc.c         ****   
+  87:adc.c         ****   return returnResult;
+  88:adc.c         **** }
+ 115              		.loc 1 88 0
  116              		@ sp needed for prologue
  117 006e 10BC     		pop	{r4}
  118 0070 02BC     		pop	{r1}
@@ -236,39 +235,39 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 1
  131              		.type	getAnalogueInput1, %function
  132              	getAnalogueInput1:
  133              	.LFB4:
-  90:adc.c         **** 
-  91:adc.c         **** tU16
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 5
+  89:adc.c         **** 
+  90:adc.c         **** tU16
+  91:adc.c         **** getAnalogueInput1(tU8 channel)
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJUJGyc.s 			page 5
 
 
-  92:adc.c         **** getAnalogueInput1(tU8 channel)
-  93:adc.c         **** {
- 134              		.loc 1 93 0
+  92:adc.c         **** {
+ 134              		.loc 1 92 0
  135 007c 10B5     		push	{r4, lr}
  136              	.LCFI1:
  137              	.LVL7:
-  94:adc.c         **** //  volatile tU32 cpsrReg;
-  95:adc.c         ****   tU16 returnResult;
-  96:adc.c         **** 
-  97:adc.c         ****   //disable IRQ
-  98:adc.c         **** //  cpsrReg = disIrq();
-  99:adc.c         **** 
- 100:adc.c         **** 	//start conversion now (for selected channel)
- 101:adc.c         **** 	AD1CR = (AD1CR & 0xFFFFFF00) | (1 << channel) | (1 << 24);
- 138              		.loc 1 101 0
+  93:adc.c         **** //  volatile tU32 cpsrReg;
+  94:adc.c         ****   tU16 returnResult;
+  95:adc.c         **** 
+  96:adc.c         ****   //disable IRQ
+  97:adc.c         **** //  cpsrReg = disIrq();
+  98:adc.c         **** 
+  99:adc.c         **** 	//start conversion now (for selected channel)
+ 100:adc.c         **** 	AD1CR = (AD1CR & 0xFFFFFF00) | (1 << channel) | (1 << 24);
+ 138              		.loc 1 100 0
  139 007e 0B4C     		ldr	r4, .L23
  140 0080 2268     		ldr	r2, [r4]
  141 0082 FF23     		mov	r3, #255
  142 0084 9A43     		bic	r2, r2, r3
- 143              		.loc 1 93 0
+ 143              		.loc 1 92 0
  144 0086 0006     		lsl	r0, r0, #24
  145              	.LVL8:
- 146              		.loc 1 101 0
+ 146              		.loc 1 100 0
  147 0088 8023     		mov	r3, #128
- 148              		.loc 1 93 0
+ 148              		.loc 1 92 0
  149 008a 000E     		lsr	r0, r0, #24
  150              	.LVL9:
- 151              		.loc 1 101 0
+ 151              		.loc 1 100 0
  152 008c 0121     		mov	r1, #1
  153 008e 5B04     		lsl	r3, r3, #17
  154 0090 8140     		lsl	r1, r1, r0
@@ -276,33 +275,33 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 1
  156 0094 1143     		orr	r1, r1, r2
  157 0096 2160     		str	r1, [r4]
  158              	.L18:
- 102:adc.c         **** 	
- 103:adc.c         **** 	//wait til done
- 104:adc.c         **** 	while((AD1DR & 0x80000000) == 0)
- 159              		.loc 1 104 0
+ 101:adc.c         **** 	
+ 102:adc.c         **** 	//wait til done
+ 103:adc.c         **** 	while((AD1DR & 0x80000000) == 0)
+ 159              		.loc 1 103 0
  160 0098 0548     		ldr	r0, .L23+4
  161              	.LVL10:
  162 009a 0368     		ldr	r3, [r0]
  163 009c 002B     		cmp	r3, #0
  164 009e FBDA     		bge	.L18
- 105:adc.c         **** 	  ;
- 106:adc.c         **** 
- 107:adc.c         **** 	//get result and adjust to 10-bit integer
- 108:adc.c         **** 	returnResult = (AD1DR>>6) & 0x3FF;
- 165              		.loc 1 108 0
+ 104:adc.c         **** 	  ;
+ 105:adc.c         **** 
+ 106:adc.c         **** 	//get result and adjust to 10-bit integer
+ 107:adc.c         **** 	returnResult = (AD1DR>>6) & 0x3FF;
+ 165              		.loc 1 107 0
  166 00a0 0068     		ldr	r0, [r0]
  167 00a2 0004     		lsl	r0, r0, #16
  168 00a4 800D     		lsr	r0, r0, #22
- 109:adc.c         **** 
- 110:adc.c         ****   //enable IRQ
- 111:adc.c         **** //  restoreIrq(cpsrReg);
- 112:adc.c         ****   
- 113:adc.c         ****   return returnResult;
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 6
+ 108:adc.c         **** 
+ 109:adc.c         ****   //enable IRQ
+ 110:adc.c         **** //  restoreIrq(cpsrReg);
+ 111:adc.c         ****   
+ 112:adc.c         ****   return returnResult;
+ 113:adc.c         **** }
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJUJGyc.s 			page 6
 
 
- 114:adc.c         **** }
- 169              		.loc 1 114 0
+ 169              		.loc 1 113 0
  170              		@ sp needed for prologue
  171 00a6 10BC     		pop	{r4}
  172 00a8 02BC     		pop	{r1}
@@ -321,167 +320,167 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 1
  185              		.type	initAdc, %function
  186              	initAdc:
  187              	.LFB5:
- 115:adc.c         **** 
- 116:adc.c         **** /*****************************************************************************
- 117:adc.c         ****  *
- 118:adc.c         ****  * Description:
- 119:adc.c         ****  *
- 120:adc.c         ****  ****************************************************************************/
- 121:adc.c         **** void
- 122:adc.c         **** initAdc(void)
- 123:adc.c         **** {
- 188              		.loc 1 123 0
+ 114:adc.c         **** 
+ 115:adc.c         **** /*****************************************************************************
+ 116:adc.c         ****  *
+ 117:adc.c         ****  * Description:
+ 118:adc.c         ****  *
+ 119:adc.c         ****  ****************************************************************************/
+ 120:adc.c         **** void
+ 121:adc.c         **** initAdc(void)
+ 122:adc.c         **** {
+ 188              		.loc 1 122 0
  189 00b4 10B5     		push	{r4, lr}
  190              	.LCFI2:
- 124:adc.c         **** 	volatile tU32 integerResult;
- 125:adc.c         **** 
- 126:adc.c         **** 	//
- 127:adc.c         ****   //Initialize ADC: AIN0 = P0.22
- 128:adc.c         ****   //
- 129:adc.c         ****   //PINSEL1 &= ~0x00003000;
- 130:adc.c         ****   //PINSEL1 |=  0x00003000;
- 131:adc.c         ****   
- 132:adc.c         **** 	//
- 133:adc.c         ****   //Initialize ADC: AIN1.6 = P0.21
- 134:adc.c         ****   //
- 135:adc.c         ****   PINSEL1 &= ~((1<<10)|(1<<11));
- 191              		.loc 1 135 0
+ 123:adc.c         **** 	volatile tU32 integerResult;
+ 124:adc.c         **** 
+ 125:adc.c         **** 	//
+ 126:adc.c         ****   //Initialize ADC: AIN0 = P0.22
+ 127:adc.c         ****   //
+ 128:adc.c         ****   //PINSEL1 &= ~0x00003000;
+ 129:adc.c         ****   //PINSEL1 |=  0x00003000;
+ 130:adc.c         ****   
+ 131:adc.c         **** 	//
+ 132:adc.c         ****   //Initialize ADC: AIN1.6 = P0.21
+ 133:adc.c         ****   //
+ 134:adc.c         ****   PINSEL1 &= ~((1<<10)|(1<<11));
+ 191              		.loc 1 134 0
  192 00b6 1D49     		ldr	r1, .L27
  193 00b8 1D4A     		ldr	r2, .L27+4
  194 00ba 0B68     		ldr	r3, [r1]
  195 00bc 1340     		and	r3, r3, r2
  196 00be 0B60     		str	r3, [r1]
- 136:adc.c         ****   PINSEL1 |=  (1<<11);
- 197              		.loc 1 136 0
+ 135:adc.c         ****   PINSEL1 |=  (1<<11);
+ 197              		.loc 1 135 0
  198 00c0 8023     		mov	r3, #128
  199 00c2 0A68     		ldr	r2, [r1]
  200 00c4 1B01     		lsl	r3, r3, #4
  201 00c6 1A43     		orr	r2, r2, r3
  202 00c8 0A60     		str	r2, [r1]
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 7
+ 136:adc.c         **** 
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJUJGyc.s 			page 7
 
 
- 137:adc.c         **** 
- 138:adc.c         **** 	//
- 139:adc.c         ****   //Initialize ADC: AIN1.7 = P0.22
- 140:adc.c         ****   //
- 141:adc.c         ****   PINSEL1 &= ~((1<<12)|(1<<13));
- 203              		.loc 1 141 0
+ 137:adc.c         **** 	//
+ 138:adc.c         ****   //Initialize ADC: AIN1.7 = P0.22
+ 139:adc.c         ****   //
+ 140:adc.c         ****   PINSEL1 &= ~((1<<12)|(1<<13));
+ 203              		.loc 1 140 0
  204 00ca 1A4A     		ldr	r2, .L27+8
  205 00cc 0B68     		ldr	r3, [r1]
  206 00ce 1340     		and	r3, r3, r2
  207 00d0 0B60     		str	r3, [r1]
- 142:adc.c         ****   PINSEL1 |=  (1<<12);
- 208              		.loc 1 142 0
+ 141:adc.c         ****   PINSEL1 |=  (1<<12);
+ 208              		.loc 1 141 0
  209 00d2 8023     		mov	r3, #128
  210 00d4 0A68     		ldr	r2, [r1]
  211 00d6 5B01     		lsl	r3, r3, #5
  212 00d8 1A43     		orr	r2, r2, r3
  213 00da 0A60     		str	r2, [r1]
- 143:adc.c         **** 
- 144:adc.c         **** 	//
- 145:adc.c         ****   //Initialize ADC: AIN0.4 = P0.25
- 146:adc.c         ****   //
- 147:adc.c         ****   PINSEL1 &= ~((1<<18)|(1<<19));
- 214              		.loc 1 147 0
+ 142:adc.c         **** 
+ 143:adc.c         **** 	//
+ 144:adc.c         ****   //Initialize ADC: AIN0.4 = P0.25
+ 145:adc.c         ****   //
+ 146:adc.c         ****   PINSEL1 &= ~((1<<18)|(1<<19));
+ 214              		.loc 1 146 0
  215 00dc 164A     		ldr	r2, .L27+12
  216 00de 0B68     		ldr	r3, [r1]
  217 00e0 1340     		and	r3, r3, r2
  218 00e2 0B60     		str	r3, [r1]
- 148:adc.c         ****   PINSEL1 |=  (1<<18);
- 219              		.loc 1 148 0
+ 147:adc.c         ****   PINSEL1 |=  (1<<18);
+ 219              		.loc 1 147 0
  220 00e4 8023     		mov	r3, #128
  221 00e6 0A68     		ldr	r2, [r1]
  222 00e8 DB02     		lsl	r3, r3, #11
  223 00ea 1A43     		orr	r2, r2, r3
  224 00ec 0A60     		str	r2, [r1]
- 149:adc.c         **** 
- 150:adc.c         ****     //Initialize ADC: AIN0.3 = P0.30
- 151:adc.c         ****   //
- 152:adc.c         ****   PINSEL1 &= ~((1<<28)|(1<<29));
- 225              		.loc 1 152 0
+ 148:adc.c         **** 
+ 149:adc.c         ****     //Initialize ADC: AIN0.3 = P0.30
+ 150:adc.c         ****   //
+ 151:adc.c         ****   PINSEL1 &= ~((1<<28)|(1<<29));
+ 225              		.loc 1 151 0
  226 00ee 134A     		ldr	r2, .L27+16
  227 00f0 0B68     		ldr	r3, [r1]
  228 00f2 1340     		and	r3, r3, r2
  229 00f4 0B60     		str	r3, [r1]
- 153:adc.c         ****   PINSEL1 |=  (1<<28);
- 230              		.loc 1 153 0
+ 152:adc.c         ****   PINSEL1 |=  (1<<28);
+ 230              		.loc 1 152 0
  231 00f6 8023     		mov	r3, #128
  232 00f8 0A68     		ldr	r2, [r1]
  233 00fa 5B05     		lsl	r3, r3, #21
  234 00fc 1A43     		orr	r2, r2, r3
- 154:adc.c         **** 
- 155:adc.c         ****   //initialize ADC
- 156:adc.c         ****   ADCR = (1 << 0)                             |  //SEL = 1, dummy channel #0
- 235              		.loc 1 156 0
+ 153:adc.c         **** 
+ 154:adc.c         ****   //initialize ADC
+ 155:adc.c         ****   ADCR = (1 << 0)                             |  //SEL = 1, dummy channel #0
+ 235              		.loc 1 155 0
  236 00fe 104C     		ldr	r4, .L27+20
  237 0100 104B     		ldr	r3, .L27+24
- 238              		.loc 1 123 0
+ 238              		.loc 1 122 0
  239 0102 81B0     		sub	sp, sp, #4
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 8
-
-
  240              	.LCFI3:
- 241              		.loc 1 153 0
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJUJGyc.s 			page 8
+
+
+ 241              		.loc 1 152 0
  242 0104 0A60     		str	r2, [r1]
- 157:adc.c         ****          ((CRYSTAL_FREQUENCY *
- 158:adc.c         ****            PLL_FACTOR /
- 159:adc.c         ****            VPBDIV_FACTOR) / 4500000 - 1) << 8 |  //set clock division factor, so ADC clock is 4.5MH
- 160:adc.c         ****          (0 << 16)                            |  //BURST = 0, conversions are SW controlled
- 161:adc.c         ****          (0 << 17)                            |  //CLKS  = 0, 11 clocks = 10-bit result
- 162:adc.c         ****          (1 << 21)                            |  //PDN   = 1, ADC is active
- 163:adc.c         ****          (1 << 24)                            |  //START = 1, start a conversion now
- 164:adc.c         ****          (0 << 27);							                 //EDGE  = 0, not relevant when start=1
- 165:adc.c         **** 
- 166:adc.c         ****   //short delay and dummy read
- 167:adc.c         ****   delayMs(10);
- 243              		.loc 1 167 0
+ 156:adc.c         ****          ((CRYSTAL_FREQUENCY *
+ 157:adc.c         ****            PLL_FACTOR /
+ 158:adc.c         ****            VPBDIV_FACTOR) / 4500000 - 1) << 8 |  //set clock division factor, so ADC clock is 4.5MH
+ 159:adc.c         ****          (0 << 16)                            |  //BURST = 0, conversions are SW controlled
+ 160:adc.c         ****          (0 << 17)                            |  //CLKS  = 0, 11 clocks = 10-bit result
+ 161:adc.c         ****          (1 << 21)                            |  //PDN   = 1, ADC is active
+ 162:adc.c         ****          (1 << 24)                            |  //START = 1, start a conversion now
+ 163:adc.c         ****          (0 << 27);							                 //EDGE  = 0, not relevant when start=1
+ 164:adc.c         **** 
+ 165:adc.c         ****   //short delay and dummy read
+ 166:adc.c         ****   delayMs(10);
+ 243              		.loc 1 166 0
  244 0106 0A20     		mov	r0, #10
- 245              		.loc 1 156 0
+ 245              		.loc 1 155 0
  246 0108 1C60     		str	r4, [r3]
- 247              		.loc 1 167 0
+ 247              		.loc 1 166 0
  248 010a FFF7FEFF 		bl	delayMs
- 168:adc.c         ****   integerResult = ADDR;
- 249              		.loc 1 168 0
+ 167:adc.c         ****   integerResult = ADDR;
+ 249              		.loc 1 167 0
  250 010e 0E4B     		ldr	r3, .L27+28
  251 0110 1B68     		ldr	r3, [r3]
  252 0112 0093     		str	r3, [sp]
  253              	.LVL11:
- 169:adc.c         ****   AD1CR = (1 << 0)                             |  //SEL = 1, dummy channel #0
- 254              		.loc 1 169 0
+ 168:adc.c         ****   AD1CR = (1 << 0)                             |  //SEL = 1, dummy channel #0
+ 254              		.loc 1 168 0
  255 0114 0D4B     		ldr	r3, .L27+32
- 170:adc.c         ****          ((CRYSTAL_FREQUENCY *
- 171:adc.c         ****            PLL_FACTOR /
- 172:adc.c         ****            VPBDIV_FACTOR) / 4500000 - 1) << 8 |  //set clock division factor, so ADC clock is 4.5MH
- 173:adc.c         ****          (0 << 16)                            |  //BURST = 0, conversions are SW controlled
- 174:adc.c         ****          (0 << 17)                            |  //CLKS  = 0, 11 clocks = 10-bit result
- 175:adc.c         ****          (1 << 21)                            |  //PDN   = 1, ADC is active
- 176:adc.c         ****          (1 << 24)                            |  //START = 1, start a conversion now
- 177:adc.c         ****          (0 << 27);							                 //EDGE  = 0, not relevant when start=1
- 178:adc.c         **** 
- 179:adc.c         ****   //short delay and dummy read
- 180:adc.c         ****   delayMs(10);
- 256              		.loc 1 180 0
+ 169:adc.c         ****          ((CRYSTAL_FREQUENCY *
+ 170:adc.c         ****            PLL_FACTOR /
+ 171:adc.c         ****            VPBDIV_FACTOR) / 4500000 - 1) << 8 |  //set clock division factor, so ADC clock is 4.5MH
+ 172:adc.c         ****          (0 << 16)                            |  //BURST = 0, conversions are SW controlled
+ 173:adc.c         ****          (0 << 17)                            |  //CLKS  = 0, 11 clocks = 10-bit result
+ 174:adc.c         ****          (1 << 21)                            |  //PDN   = 1, ADC is active
+ 175:adc.c         ****          (1 << 24)                            |  //START = 1, start a conversion now
+ 176:adc.c         ****          (0 << 27);							                 //EDGE  = 0, not relevant when start=1
+ 177:adc.c         **** 
+ 178:adc.c         ****   //short delay and dummy read
+ 179:adc.c         ****   delayMs(10);
+ 256              		.loc 1 179 0
  257 0116 0A20     		mov	r0, #10
- 258              		.loc 1 169 0
+ 258              		.loc 1 168 0
  259 0118 1C60     		str	r4, [r3]
- 260              		.loc 1 180 0
+ 260              		.loc 1 179 0
  261 011a FFF7FEFF 		bl	delayMs
- 181:adc.c         ****   integerResult = AD1DR;
- 262              		.loc 1 181 0
+ 180:adc.c         ****   integerResult = AD1DR;
+ 262              		.loc 1 180 0
  263 011e 0C4B     		ldr	r3, .L27+36
  264 0120 1B68     		ldr	r3, [r3]
  265 0122 0093     		str	r3, [sp]
- 182:adc.c         **** }
- 266              		.loc 1 182 0
+ 181:adc.c         **** }
+ 266              		.loc 1 181 0
  267 0124 01B0     		add	sp, sp, #4
  268              		@ sp needed for prologue
  269 0126 10BC     		pop	{r4}
  270 0128 01BC     		pop	{r0}
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 9
-
-
  271 012a 0047     		bx	r0
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJUJGyc.s 			page 9
+
+
  272              	.L28:
  273              		.align	2
  274              	.L27:
@@ -538,10 +537,10 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 1
  325              	.LEFDE2:
  326              	.LSFDE4:
  327 0038 14000000 		.4byte	.LEFDE4-.LASFDE4
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 10
-
-
  328              	.LASFDE4:
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJUJGyc.s 			page 10
+
+
  329 003c 00000000 		.4byte	.Lframe0
  330 0040 7C000000 		.4byte	.LFB4
  331 0044 38000000 		.4byte	.LFE4-.LFB4
@@ -598,10 +597,10 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 1
  382 0028 5D       		.byte	0x5d
  383 0029 46000000 		.4byte	.LCFI0-.Ltext0
  384 002d 7C000000 		.4byte	.LFE3-.Ltext0
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 11
-
-
  385 0031 0200     		.2byte	0x2
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJUJGyc.s 			page 11
+
+
  386 0033 7D       		.byte	0x7d
  387 0034 08       		.sleb128 8
  388 0035 00000000 		.4byte	0x0
@@ -658,10 +657,10 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 1
  439 00bb 00000000 		.4byte	0x0
  440 00bf 00000000 		.4byte	0x0
  441              		.section	.debug_info
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 12
-
-
  442 0000 31010000 		.4byte	0x131
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJUJGyc.s 			page 12
+
+
  443 0004 0200     		.2byte	0x2
  444 0006 00000000 		.4byte	.Ldebug_abbrev0
  445 000a 04       		.byte	0x4
@@ -718,10 +717,10 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 1
  496 0076 15000000 		.4byte	.LASF7
  497 007a 01       		.byte	0x1
  498 007b 24       		.byte	0x24
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 13
-
-
  499 007c 01       		.byte	0x1
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJUJGyc.s 			page 13
+
+
  500 007d 00000000 		.4byte	.LFB2
  501 0081 44000000 		.4byte	.LFE2
  502 0085 01       		.byte	0x1
@@ -738,7 +737,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 1
  513 009c 01       		.byte	0x1
  514 009d A3000000 		.4byte	.LASF8
  515 00a1 01       		.byte	0x1
- 516 00a2 44       		.byte	0x44
+ 516 00a2 43       		.byte	0x43
  517 00a3 01       		.byte	0x1
  518 00a4 37000000 		.4byte	0x37
  519 00a8 44000000 		.4byte	.LFB3
@@ -747,13 +746,13 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 1
  522 00b4 07       		.uleb128 0x7
  523 00b5 0D000000 		.4byte	.LASF10
  524 00b9 01       		.byte	0x1
- 525 00ba 43       		.byte	0x43
+ 525 00ba 42       		.byte	0x42
  526 00bb 25000000 		.4byte	0x25
  527 00bf 3D000000 		.4byte	.LLST3
  528 00c3 09       		.uleb128 0x9
  529 00c4 33000000 		.4byte	.LASF12
  530 00c8 01       		.byte	0x1
- 531 00c9 46       		.byte	0x46
+ 531 00c9 45       		.byte	0x45
  532 00ca 37000000 		.4byte	0x37
  533 00ce 00       		.byte	0x0
  534 00cf 08       		.uleb128 0x8
@@ -761,7 +760,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 1
  536 00d4 01       		.byte	0x1
  537 00d5 D1000000 		.4byte	.LASF11
  538 00d9 01       		.byte	0x1
- 539 00da 5D       		.byte	0x5d
+ 539 00da 5C       		.byte	0x5c
  540 00db 01       		.byte	0x1
  541 00dc 37000000 		.4byte	0x37
  542 00e0 7C000000 		.4byte	.LFB4
@@ -770,24 +769,24 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 1
  545 00ec 07       		.uleb128 0x7
  546 00ed 0D000000 		.4byte	.LASF10
  547 00f1 01       		.byte	0x1
- 548 00f2 5C       		.byte	0x5c
+ 548 00f2 5B       		.byte	0x5b
  549 00f3 25000000 		.4byte	0x25
  550 00f7 7A000000 		.4byte	.LLST5
  551 00fb 09       		.uleb128 0x9
  552 00fc 33000000 		.4byte	.LASF12
  553 0100 01       		.byte	0x1
- 554 0101 5F       		.byte	0x5f
+ 554 0101 5E       		.byte	0x5e
  555 0102 37000000 		.4byte	0x37
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 14
-
-
  556 0106 00       		.byte	0x0
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJUJGyc.s 			page 14
+
+
  557 0107 0A       		.uleb128 0xa
  558 0108 2F010000 		.4byte	0x12f
  559 010c 01       		.byte	0x1
  560 010d C9000000 		.4byte	.LASF13
  561 0111 01       		.byte	0x1
- 562 0112 7B       		.byte	0x7b
+ 562 0112 7A       		.byte	0x7a
  563 0113 01       		.byte	0x1
  564 0114 B4000000 		.4byte	.LFB5
  565 0118 54010000 		.4byte	.LFE5
@@ -795,7 +794,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 1
  567 0120 0B       		.uleb128 0xb
  568 0121 84000000 		.4byte	.LASF14
  569 0125 01       		.byte	0x1
- 570 0126 7C       		.byte	0x7c
+ 570 0126 7B       		.byte	0x7b
  571 0127 2F010000 		.4byte	0x12f
  572 012b 02       		.byte	0x2
  573 012c 91       		.byte	0x91
@@ -838,10 +837,10 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 1
  610 001e 00       		.byte	0x0
  611 001f 00       		.byte	0x0
  612 0020 03       		.uleb128 0x3
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 15
-
-
  613 0021 24       		.uleb128 0x24
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJUJGyc.s 			page 15
+
+
  614 0022 00       		.byte	0x0
  615 0023 03       		.uleb128 0x3
  616 0024 0E       		.uleb128 0xe
@@ -898,10 +897,10 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 1
  667 0057 0A       		.uleb128 0xa
  668 0058 00       		.byte	0x0
  669 0059 00       		.byte	0x0
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 16
-
-
  670 005a 07       		.uleb128 0x7
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJUJGyc.s 			page 16
+
+
  671 005b 05       		.uleb128 0x5
  672 005c 00       		.byte	0x0
  673 005d 03       		.uleb128 0x3
@@ -958,10 +957,10 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 1
  724 0090 2E       		.uleb128 0x2e
  725 0091 01       		.byte	0x1
  726 0092 01       		.uleb128 0x1
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 17
-
-
  727 0093 13       		.uleb128 0x13
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJUJGyc.s 			page 17
+
+
  728 0094 3F       		.uleb128 0x3f
  729 0095 0C       		.uleb128 0xc
  730 0096 03       		.uleb128 0x3
@@ -1018,10 +1017,10 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 1
  777      6E707574 
  777      3000
  778 0030 CF000000 		.4byte	0xcf
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 18
-
-
  779 0034 67657441 		.ascii	"getAnalogueInput1\000"
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJUJGyc.s 			page 18
+
+
  779      6E616C6F 
  779      67756549 
  779      6E707574 
@@ -1078,10 +1077,10 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 1
  811      64726976 
  811      652F632F 
  811      456D6265 
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 19
-
-
  811      64646564 
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJUJGyc.s 			page 19
+
+
  812              	.LASF6:
  813 007a 73686F72 		.ascii	"short int\000"
  813      7420696E 
@@ -1125,22 +1124,22 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 1
  831 00e3 74553136 		.ascii	"tU16\000"
  831      00
  832              		.ident	"GCC: (GNU) 4.1.1"
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s 			page 20
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccJUJGyc.s 			page 20
 
 
 DEFINED SYMBOLS
                             *ABS*:00000000 adc.c
-/cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s:1      .text:00000000 $t
-/cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s:16     .text:00000000 delayMs
-/cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s:67     .text:00000034 $d
-/cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s:78     .text:00000044 getAnalogueInput0
-/cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s:75     .text:00000044 $t
-/cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s:123    .text:00000074 $d
-/cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s:132    .text:0000007c getAnalogueInput1
-/cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s:129    .text:0000007c $t
-/cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s:177    .text:000000ac $d
-/cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s:186    .text:000000b4 initAdc
-/cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s:183    .text:000000b4 $t
-/cygdrive/c/Users/embedded/AppData/Local/Temp/ccnVv98j.s:275    .text:0000012c $d
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccJUJGyc.s:1      .text:00000000 $t
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccJUJGyc.s:16     .text:00000000 delayMs
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccJUJGyc.s:67     .text:00000034 $d
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccJUJGyc.s:78     .text:00000044 getAnalogueInput0
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccJUJGyc.s:75     .text:00000044 $t
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccJUJGyc.s:123    .text:00000074 $d
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccJUJGyc.s:132    .text:0000007c getAnalogueInput1
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccJUJGyc.s:129    .text:0000007c $t
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccJUJGyc.s:177    .text:000000ac $d
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccJUJGyc.s:186    .text:000000b4 initAdc
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccJUJGyc.s:183    .text:000000b4 $t
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccJUJGyc.s:275    .text:0000012c $d
 
 NO UNDEFINED SYMBOLS

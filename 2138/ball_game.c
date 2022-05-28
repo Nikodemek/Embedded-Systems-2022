@@ -11,13 +11,13 @@
  *
  *****************************************************************************/
 
-#include <stdlib.h>
 #include "pre_emptive_os/api/osapi.h"
 #include "lcd.h"
 #include "pca9532.h"
 #include "adc.h"
 #include "general.h"
 #include "ball_game.h"
+#include "startup/framework.h"
 
 #define ACC_X_CTRL_STACK_SIZE 512
 #define ACC_Y_CTRL_STACK_SIZE 512
@@ -44,74 +44,77 @@ typedef struct Ball
 
 typedef struct Obstacle
 {
-    tU16 xPos;
-    tU16 yPos;
+    tS16 xPos;
+    tS16 yPos;
     tU8 speed;
     tU8 height;
     tU8 width;
 } Obstacle;
 
-static tU8 accXCtrlStack[ACC_X_CTRL_STACK_SIZE];
-static tU8 accYCtrlStack[ACC_Y_CTRL_STACK_SIZE];
-static tU8 obstaclesCtrlStack[OBSTACLES_CTRL_STACK_SIZE];
-static tU8 gameTimeStack[GAME_TIME_STACK_SIZE];
+tU8 accXCtrlStack[ACC_X_CTRL_STACK_SIZE];
+tU8 accYCtrlStack[ACC_Y_CTRL_STACK_SIZE];
+tU8 obstaclesCtrlStack[OBSTACLES_CTRL_STACK_SIZE];
+tU8 gameTimeStack[GAME_TIME_STACK_SIZE];
 
-static tU8 pidAccXCtrl;
-static tU8 pidAccYCtrl;
-static tU8 pidObstaclesCtrl;
-static tU8 pidGameTime;
+tU8 pidAccXCtrl;
+tU8 pidAccYCtrl;
+tU8 pidObstaclesCtrl;
+tU8 pidGameTime;
 
-static const tU8 pixelsPerDiodRow = (tU8) LCD_HEIGHT / 8;
+const tU8 pixelsPerDiodRow = (tU8) LCD_HEIGHT / 8;
 
-static tU16 refXValue;
-static tU16 refYValue;
+volatile tU16 obstacleDelay = 200;
+volatile tU8 diodsRow = 0;
+volatile tBool isInProgress = FALSE;
+volatile tU32 gameTime = 0;
+volatile tBool pca9532Present = FALSE;
 
-static volatile tU8 obstacleDelay = 300;
-static volatile tU8 diodsRow = 0;
-static volatile tBool isInProgress = FALSE;
-static volatile tU32 gameTime = 0;
-static volatile tBool pca9532Present = FALSE;
+Ball ball;
+Obstacle obstacles[MAX_OBSTACLES];
 
-static Ball ball;
-static Obstacle obstacles[MAX_OBSTACLES];
+static void
+sleep(tU16 delay)
+{
+	osSleep(delay / 6);
+}
 
-static tU16
-clamp(tU16 val, tU16 min, tU16 max)
+tU16
+clamp(tS16 val, tS16 min, tS16 max)
 {
     if (val >= max) return max;
     if (val <= min) return min;
     return val;
 }
 
-static tU16
+tU16
 random(tU16 minInc, tU16 maxInc)
 {
     if (maxInc < minInc) return 0;
     return rand() % (maxInc - minInc + 1) + minInc;
 }
 
-static tU16
+tU16
 calculateStrength(tU16 absoluteValue)
 {
-    if (absoluteValue < 0) return 0;
+    if (absoluteValue <= 0) return 0;
     if (absoluteValue < 30) return 0;
     return clamp(absoluteValue / 20, 0, 8);
 }
 
-static tU16
+tU16
 calculateDelay(tU16 strength)
 {
     if (strength <= 0) return 40;
     return 136 - 16 * strength;     // linear
 }
 
-static tU16
-getScore()
+tU32
+getScore(void)
 {
-    return gameTime * 10;
+    return gameTime / 10 * 10;
 }
 
-static tBool
+tBool
 isCollision(Obstacle *obstacle)
 {
     tU8 ballRadius = ball.radius;
@@ -131,12 +134,12 @@ isCollision(Obstacle *obstacle)
     return TRUE;
 }
 
-static void
+void
 randomizeObstacle(Obstacle *obstacle)
 {
-    tU8 newWidth = (tU8)random(20, 80);
+    tU8 newWidth = (tU8)random(20, 60);
     tU8 newHeight = (tU8)random(1, 5);
-    tU8 newSpeed = (tU8)random(1, 6);
+    tU8 newSpeed = (tU8)random(1, 5);
     tU16 newXPos = random(0, LCD_WIDTH - newWidth);
     tU16 newYPos = 0;
 
@@ -147,10 +150,11 @@ randomizeObstacle(Obstacle *obstacle)
     obstacle->yPos = newYPos;
 }
 
-static void
+void
 fillObstacles(void)
 {
     tU16 minY = LCD_HEIGHT;
+    tBool found = FALSE;
     Obstacle *newObstacle;
     tU8 i;
     for (i = 0; i < MAX_OBSTACLES; i++)
@@ -163,14 +167,15 @@ fillObstacles(void)
             continue;
         }
         newObstacle = obstacle;
+        found = TRUE;
     }
-    if (minY < MIN_INTERVAL) return;
+    if (minY < MIN_INTERVAL || found == FALSE) return;
 
     randomizeObstacle(newObstacle);
 }
 
-static tBool
-isAnyCollision()
+tBool
+isAnyCollision(void)
 {
     tU8 i;
     for (i = 0; i < MAX_OBSTACLES; i++)
@@ -181,13 +186,13 @@ isAnyCollision()
     return FALSE;
 }
 
-static void
+void
 overdrawBall(tU8 color)
 {
     lcdRect(ball.xPos, ball.yPos, ball.radius, ball.radius, color);
 }
 
-static void
+void
 overdrawObstacles(tU8 color)
 {
     tU8 i;
@@ -200,8 +205,8 @@ overdrawObstacles(tU8 color)
     }
 }
 
-static void
-detectCollisions()
+void
+detectCollisions(void)
 {
     if (isAnyCollision()) 
     {
@@ -209,8 +214,8 @@ detectCollisions()
     }
 }
 
-static void
-updateDiods()
+void
+updateDiods(void)
 {
     tU8 newRow = clamp(ball.yPos / pixelsPerDiodRow, 0, 7); 
     if (newRow == diodsRow) return;
@@ -222,7 +227,7 @@ updateDiods()
     diodsRow = newRow;
 }
 
-static void
+void
 moveBall(tU8 dir)
 {
     tBool moved = TRUE;
@@ -230,19 +235,19 @@ moveBall(tU8 dir)
     {
     case UP:
         overdrawBall(BLACK);
-        ball.yPos -= ball.speed;
+        ball.yPos = clamp(ball.yPos - ball.speed, 0, LCD_HEIGHT - ball.radius - 1);
         break;
     case DOWN:
         overdrawBall(BLACK);
-        ball.yPos += ball.speed;
+        ball.yPos = clamp(ball.yPos + ball.speed, 0, LCD_HEIGHT - ball.radius - 1);
         break;
     case LEFT:
         overdrawBall(BLACK);
-        ball.xPos -= ball.speed;
+        ball.xPos = clamp(ball.xPos - ball.speed, 0, LCD_WIDTH - ball.radius - 1);
         break;
     case RIGHT:
         overdrawBall(BLACK);
-        ball.xPos += ball.speed;
+        ball.xPos = clamp(ball.xPos + ball.speed, 0, LCD_WIDTH - ball.radius - 1);
         break;
     default:
         moved = FALSE;
@@ -251,14 +256,11 @@ moveBall(tU8 dir)
 
     if (moved == FALSE) return;
 
-    ball.yPos = clamp(ball.yPos, 0, LCD_HEIGHT);
-    ball.xPos = clamp(ball.xPos, 0, LCD_WIDTH);
-
     overdrawBall(WHITE);
     detectCollisions();
 }
 
-static void
+void
 moveObstacles(void)
 {
     overdrawObstacles(BLACK);
@@ -274,7 +276,7 @@ moveObstacles(void)
     detectCollisions();
 }
 
-static void
+void
 moveBallAndWait(tU16 absoluteValue, tU8 dir, tBool update)
 {
     tU16 strength = calculateStrength(absoluteValue);
@@ -283,10 +285,10 @@ moveBallAndWait(tU16 absoluteValue, tU8 dir, tBool update)
     if (strength > 0) moveBall(dir);
     if (update) updateDiods();
 
-    osSleep(delay);
+    sleep(delay);
 }
 
-static void
+void
 diodsShowOff(tU16 delay)
 {
     if (pca9532Present == FALSE) pca9532Present = pca9532Init();
@@ -296,17 +298,17 @@ diodsShowOff(tU16 delay)
     for (pin = -7; pin < 8; pin++)
     {
         tU8 leftPin = abs(pin);
-        tU8 rightPin = 16 - leftPin;
+        tU8 rightPin = 15 - leftPin;
         setPca9532Pin(leftPin, 0);
         setPca9532Pin(rightPin, 0);
-        osSleep(delay);
+        sleep(delay);
         setPca9532Pin(leftPin, 1);
         setPca9532Pin(rightPin, 1);
     }
 }
 
-static void
-gameTimeProc()
+void
+gameTimeProc(void *arg)
 {
     tU8 hoodlum = 0;
     while (isInProgress)
@@ -315,20 +317,21 @@ gameTimeProc()
         if (hoodlum++ >= 50)
         {
             hoodlum = 0;
-            obstacleDelay -= (obstacleDelay / 15);
+            obstacleDelay -= (obstacleDelay / 20);
         }
-        osSleep(100);
+        sleep(10);
     }
 
     osDeleteProcess();
 }
 
-static void
-accXCtrlProc(void)
+void
+accXCtrlProc(void *arg)
 {
+	tS16 refXValue = getAnalogueInput1(ACCEL_X);
     while (isInProgress)
     {
-        tU16 value = refXValue - getAnalogueInput1(ACCEL_X);
+        tS16 value = refXValue - getAnalogueInput1(ACCEL_X);
         tU16 absoluteValue = abs(value);
 
         if (value > 0) moveBallAndWait(absoluteValue, UP, FALSE);
@@ -338,12 +341,13 @@ accXCtrlProc(void)
     osDeleteProcess();
 }
 
-static void
-accYCtrlProc(void)
+void
+accYCtrlProc(void *arg)
 {
+	tS16 refYValue = getAnalogueInput1(ACCEL_Y);
     while (isInProgress)
     {
-        tU16 value = refYValue - getAnalogueInput1(ACCEL_Y);
+        tS16 value = refYValue - getAnalogueInput1(ACCEL_Y);
         tU16 absoluteValue = abs(value);
 
         if (value > 0) moveBallAndWait(absoluteValue, RIGHT, TRUE);
@@ -354,12 +358,12 @@ accYCtrlProc(void)
     osDeleteProcess();
 }
 
-static void 
-obstaclesCtrlProc(void)
+void
+obstaclesCtrlProc(void *arg)
 {
     while (isInProgress)
     {
-        osSleep(obstacleDelay);
+        sleep(obstacleDelay);
         moveObstacles();
         fillObstacles();
     }
@@ -367,7 +371,7 @@ obstaclesCtrlProc(void)
     osDeleteProcess();
 }
 
-static void
+void
 initScene(void)
 {
     lcdColor(BLACK, WHITE);
@@ -380,6 +384,7 @@ initScene(void)
     ball.speed = 5;
     ball.radius = 4;
 
+
     tU8 i;
     for (i = 0; i < MAX_OBSTACLES; i++)
     {
@@ -390,18 +395,38 @@ initScene(void)
 }
 
 static void
-startGame()
+scoreWindow(void)
+{
+    lcdRect(0, 45, 130, 40, WHITE);
+    lcdGotoxy(45, 48);
+    lcdPuts("SCORE");
+
+    int score = getScore();
+    int tempScore = score;
+    tU8 counter = 0;
+    while(tempScore > 0)
+    {
+    	tempScore /= 10;
+    	counter++;
+    }
+    tU16 x = 65 - counter * 4;
+
+    lcdGotoxy(x, 65);
+    char buffer[10];
+    sprintf(buffer, "%d", score);
+    lcdPuts(buffer);
+}
+
+void
+startGame(void)
 {
     if (isInProgress) return;
     isInProgress = TRUE;
 
     tU8 error;
-    time_t t;
-    srand(time(&t));
 
     gameTime = 0;
-    refXValue = getAnalogueInput1(ACCEL_X);
-    refYValue = getAnalogueInput1(ACCEL_Y);
+    obstacleDelay = 200;
     pca9532Present = pca9532Init();
     initScene();
     diodsShowOff(40);
@@ -418,13 +443,14 @@ startGame()
     osCreateProcess(gameTimeProc, gameTimeStack, GAME_TIME_STACK_SIZE, &pidGameTime, 2, NULL, &error);
     osStartProcess(pidGameTime, &error);
 
-    while(isInProgress);
+    //while(isInProgress);
 }
 
-static void
-stopGame()
+void
+stopGame(void)
 {
     if (isInProgress == FALSE) return;
     isInProgress = FALSE;
-    diodsShowOff(80);
+    diodsShowOff(40);
+    scoreWindow();
 }

@@ -13,8 +13,8 @@
 #ifndef _BALL_GAME_H_
 #define _BALL_GAME_H_
 
-static tU16 getScore();
-static void startGame();
-static void stopGame();
+tU32 getScore(void);
+void startGame(void);
+void stopGame(void);
 
 #endif

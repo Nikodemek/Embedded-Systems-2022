@@ -1,4 +1,4 @@
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 1
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccAUHlP6.s 			page 1
 
 
    1              		.code	16
@@ -58,7 +58,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 1
   29      202D2077 
   29      726F6E67 
   29      206C656E 
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 2
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccAUHlP6.s 			page 2
 
 
   30 0108 63746572 		.ascii	"cters long)! %d\000"
@@ -118,7 +118,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 1
   52      202D2072 
   52      65616420 
   52      73747269 
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 3
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccAUHlP6.s 			page 3
 
 
   53 0247 00       		.align	2
@@ -178,7 +178,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 1
   36:eepromTest.c  ****  ****************************************************************************/
   37:eepromTest.c  **** tU8
   38:eepromTest.c  **** testEEPROM(void)
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 4
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccAUHlP6.s 			page 4
 
 
   39:eepromTest.c  **** {
@@ -238,7 +238,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 1
  107 0038 7B48     		ldr	r0, .L31+8
  108 003a 291C     		mov	r1, r5
  109 003c FFF7FEFF 		bl	simplePrintf
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 5
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccAUHlP6.s 			page 5
 
 
   54:eepromTest.c  ****     printf("\n        - failed (error code = %d)!", errorCode);
@@ -298,7 +298,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 1
  144              		.loc 1 73 0
  145 007c 6D48     		ldr	r0, .L31+20
  146 007e 291C     		mov	r1, r5
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 6
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccAUHlP6.s 			page 6
 
 
  147 0080 FFF7FEFF 		bl	simplePrintf
@@ -358,7 +358,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 1
   94:eepromTest.c  ****     if (strlen(testBuf) == sizeof(testString1)-1)
  181              		.loc 1 94 0
  182 00c0 281C     		mov	r0, r5
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 7
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccAUHlP6.s 			page 7
 
 
  183 00c2 FFF7FEFF 		bl	strlen
@@ -418,7 +418,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 1
  228 011e 0294     		str	r4, [sp, #8]
  229 0120 AC79     		ldrb	r4, [r5, #6]
  230 0122 0394     		str	r4, [sp, #12]
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 8
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccAUHlP6.s 			page 8
 
 
  231 0124 EC79     		ldrb	r4, [r5, #7]
@@ -478,7 +478,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 1
  268 0168 0928     		cmp	r0, #9
  269 016a 11D0     		beq	.L17
  121:eepromTest.c  **** ;//      printf("\n        - string is '%s'", testBuf);
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 9
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccAUHlP6.s 			page 9
 
 
  122:eepromTest.c  ****     else
@@ -538,7 +538,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 1
  144:eepromTest.c  ****   {
  145:eepromTest.c  ****   	printf("\nTest #5 - write string '%s' to address 0x0004", testString2);
  302              		.loc 1 145 0
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 10
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccAUHlP6.s 			page 10
 
 
  303 01a4 2B48     		ldr	r0, .L31+52
@@ -598,7 +598,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 1
  339              		.loc 1 163 0
  340 01e8 281C     		mov	r0, r5
  341 01ea FFF7FEFF 		bl	strlen
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 11
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccAUHlP6.s 			page 11
 
 
  342 01ee 0D28     		cmp	r0, #13
@@ -658,7 +658,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 1
  379 022c 30000000 		.word	.LC6
  380 0230 58000000 		.word	.LC8
  381 0234 7C000000 		.word	.LC10
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 12
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccAUHlP6.s 			page 12
 
 
  382 0238 AC000000 		.word	.LC12
@@ -718,7 +718,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 1
  436              	.Ldebug_loc0:
  437              	.LLST0:
  438 0000 00000000 		.4byte	.LFB2-.Ltext0
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 13
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccAUHlP6.s 			page 13
 
 
  439 0004 02000000 		.4byte	.LCFI0-.Ltext0
@@ -778,7 +778,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 1
  493 0043 04       		.byte	0x4
  494 0044 07       		.byte	0x7
  495 0045 02       		.uleb128 0x2
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 14
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccAUHlP6.s 			page 14
 
 
  496 0046 74533800 		.ascii	"tS8\000"
@@ -838,7 +838,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 1
  550 00b2 28       		.byte	0x28
  551 00b3 25000000 		.4byte	0x25
  552 00b7 2C000000 		.4byte	.LLST1
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 15
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccAUHlP6.s 			page 15
 
 
  553 00bb 07       		.uleb128 0x7
@@ -898,7 +898,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 1
  607 0002 01       		.byte	0x1
  608 0003 10       		.uleb128 0x10
  609 0004 06       		.uleb128 0x6
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 16
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccAUHlP6.s 			page 16
 
 
  610 0005 12       		.uleb128 0x12
@@ -958,7 +958,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 1
  664 003b 3F       		.uleb128 0x3f
  665 003c 0C       		.uleb128 0xc
  666 003d 03       		.uleb128 0x3
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 17
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccAUHlP6.s 			page 17
 
 
  667 003e 0E       		.uleb128 0xe
@@ -1018,7 +1018,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 1
  721 0074 3B       		.uleb128 0x3b
  722 0075 0B       		.uleb128 0xb
  723 0076 49       		.uleb128 0x49
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 18
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccAUHlP6.s 			page 18
 
 
  724 0077 13       		.uleb128 0x13
@@ -1078,7 +1078,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 1
  775      7420696E 
  775      7400
  776              	.LASF14:
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 19
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccAUHlP6.s 			page 19
 
 
  777 000a 6572726F 		.ascii	"errorCode\000"
@@ -1138,7 +1138,7 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 1
  801      7420756E 
  801      7369676E 
  801      65642069 
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 20
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccAUHlP6.s 			page 20
 
 
  801      6E7400
@@ -1168,14 +1168,14 @@ ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 1
  811      73756C74 
  811      4F4B00
  812              		.ident	"GCC: (GNU) 4.1.1"
-ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s 			page 21
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccAUHlP6.s 			page 21
 
 
 DEFINED SYMBOLS
                             *ABS*:00000000 eepromTest.c
-/cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s:1      .text:00000000 $t
-/cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s:65     .text:00000000 testEEPROM
-/cygdrive/c/Users/embedded/AppData/Local/Temp/cc72jsws.s:376    .text:00000220 $d
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccAUHlP6.s:1      .text:00000000 $t
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccAUHlP6.s:65     .text:00000000 testEEPROM
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccAUHlP6.s:376    .text:00000220 $d
 
 UNDEFINED SYMBOLS
 memcpy
