@@ -13,6 +13,11 @@
 #ifndef _LCD_H_
 #define _LCD_H_
 
+#define WHITE (tU8)0xFFu
+#define BLACK (tU8)0x00u
+#define LCD_HEIGHT 130
+#define LCD_WIDTH 130
+
 void lcdInit(void);
 void lcdOff(void);
 void lcdContrast(tU8 contr);

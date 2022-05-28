@@ -58,6 +58,7 @@ CSRCS   = main.c          \
           adc.c           \
           pca9532.c       \
           lcd.c           \
+          ball_game.c     \
           lcd_hw.c        \
           key.c
 

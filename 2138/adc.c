@@ -45,8 +45,7 @@ delayMs(tU16 delayInMs)
   T1TCR = 0x01;          //start timer
 
   //wait until delay time has elapsed
-  while (T1TCR & 0x01)
-    ;
+  while (T1TCR & 0x01);
 }
 
 
