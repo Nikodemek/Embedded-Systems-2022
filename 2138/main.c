@@ -96,7 +96,6 @@ static void
 proc1(void *arg)
 {
     osSleep(50);
-    printf("Pupa");
 
     if (pca9532Present == FALSE) pca9532Present = pca9532Init();
     if (pca9532Present == FALSE) return;
@@ -127,6 +126,10 @@ proc1(void *arg)
     }
 }
 
+/*!
+ *  @brief    A procedure for displaying a welcome
+ *            message on the lcd screen.
+ */
 static void
 drawWelcome(void)
 {

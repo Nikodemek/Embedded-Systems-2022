@@ -12,11 +12,11 @@
  *****************************************************************************/
 
 #include "pre_emptive_os/api/osapi.h"
-#include "lcd.h"
-#include "pca9532.h"
-#include "adc.h"
-#include "general.h"
-#include "ball_game.h"
+#include "./lcd.h"
+#include "./pca9532.h"
+#include "./adc.h"
+#include "./general.h"
+#include "./ball_game.h"
 #include "startup/framework.h"
 
 #define ACC_X_CTRL_STACK_SIZE 512
@@ -61,7 +61,7 @@ tU8 pidAccYCtrl;
 tU8 pidObstaclesCtrl;
 tU8 pidGameTime;
 
-const tU8 pixelsPerDiodRow = (tU8) LCD_HEIGHT / 8;
+const tU8 pixelsPerDiodRow = (tU8)(LCD_HEIGHT / 8);
 
 volatile tU16 obstacleDelay = 200;
 volatile tU8 diodsRow = 0;
@@ -72,13 +72,32 @@ volatile tBool pca9532Present = FALSE;
 Ball ball;
 Obstacle obstacles[MAX_OBSTACLES];
 
+
+/*!
+ *  @brief    A procedure for delaying the execution
+ *            of a code for a given amount of time.
+ *  @param delay 
+ *            A delay value as an 16-bit unsigned integer.
+ */
 static void
 sleep(tU16 delay)
 {
-	osSleep(delay / 6);
+    osSleep(delay / 6);
 }
 
-tU16
+/*!
+ *  @brief    A function for clamping a value between
+ *            a given min and a given max.
+ *  @param val 
+ *            A value to clamp.
+ *  @param min 
+ *            Min value of the result.
+ *  @param max
+ *            Max value of the result.
+ *  @returns  a 16-bit signed integer value clamped
+ *            between min and max
+ */
+static tS16
 clamp(tS16 val, tS16 min, tS16 max)
 {
     if (val >= max) return max;
@@ -86,34 +105,72 @@ clamp(tS16 val, tS16 min, tS16 max)
     return val;
 }
 
-tU16
+/*!
+ *  @brief    A function for generating a pseudo-random
+ *            16-bit unsigned integer value.
+ *  @param minInc 
+ *            Min value (inclusive)
+ *  @param maxInc
+ *            Max value (inclusive)
+ *  @returns  a pseudo-random 16-bit unsigned integer
+ *            ranging from minInc to maxInc
+ */
+static tU16
 random(tU16 minInc, tU16 maxInc)
 {
     if (maxInc < minInc) return 0;
     return rand() % (maxInc - minInc + 1) + minInc;
 }
 
-tU16
+/*!
+ *  @brief    A function for calculating ball movement
+ *            strength.
+ *  @param absoluteValue
+ *            An absolute value of the difference between
+ *            reference acclelerometer value and current
+ *            value in a certain axis.
+ *  @returns  calculated strength of a move ranging from 0 to 8
+ */
+static tU16
 calculateStrength(tU16 absoluteValue)
 {
-    if (absoluteValue <= 0) return 0;
     if (absoluteValue < 30) return 0;
     return clamp(absoluteValue / 20, 0, 8);
 }
 
-tU16
+/*!
+ *  @brief    A function for calculating ball movement
+ *            delay.
+ *  @param strength
+ *            A strength of a move, ranging from 0 to 8.
+ *  @returns  calculated delay before the next ball move
+ */
+static tU16
 calculateDelay(tU16 strength)
 {
-    if (strength <= 0) return 40;
+    if (strength == 0) return 40;
     return 136 - 16 * strength;     // linear
 }
 
+/*!
+ *  @brief    A function for reading player's score.
+ *  @returns  player's score as an 32-bit unsigned integer
+ */
 tU32
 getScore(void)
 {
     return gameTime / 10 * 10;
 }
 
+/*!
+ *  @brief    A function resposible for checking
+ *            if the collision between the ball and
+ *            given obstacle has occured.
+ *  @param obstacle
+ *            A pointer to the obstacle object for which
+ *            the collision check shall happen.
+ *  @returns  true if collisions occured, false if it did not
+ */
 tBool
 isCollision(Obstacle *obstacle)
 {
@@ -122,18 +179,26 @@ isCollision(Obstacle *obstacle)
     tU16 ballYPos = ball.yPos;
     tU16 obstacleYPos = obstacle->yPos;
     tU8 obstacleHeight = obstacle->height;
-    if (ballYPos > obstacleYPos + obstacleHeight || 
+    if (ballYPos > obstacleYPos + obstacleHeight ||
         ballYPos + ballRadius < obstacleYPos) return FALSE;
 
     tU16 ballXPos = ball.xPos;
     tU16 obstacleXPos = obstacle->xPos;
     tU8 obstacleWidth = obstacle->width;
-    if (ballXPos > obstacleXPos + obstacleWidth || 
+    if (ballXPos > obstacleXPos + obstacleWidth ||
         ballXPos + ballRadius < obstacleXPos) return FALSE;
 
     return TRUE;
 }
 
+/*!
+ *  @brief    A procedure used to randomize the
+ *            properties of the new obstacle and move
+ *            it on top of the game-area
+ *  @param obstacle
+ *            A pointer to the obstacle object
+ *            to be randomized.
+ */
 void
 randomizeObstacle(Obstacle *obstacle)
 {
@@ -150,6 +215,15 @@ randomizeObstacle(Obstacle *obstacle)
     obstacle->yPos = newYPos;
 }
 
+/*!
+ *  @brief    A procedure used to create an obstacle,
+ *            when the are too few. Our application uses
+ *            object-pooling method to reduce costs of
+ *            instantiating new objects, so it looks for
+ *            any out-of-in-game-area obstacle and if found
+ *            it randomizes it's properties and moves it
+ *            to the top.
+ */
 void
 fillObstacles(void)
 {
@@ -174,6 +248,12 @@ fillObstacles(void)
     randomizeObstacle(newObstacle);
 }
 
+/*!
+ *  @brief    A function checking if any ball-obstacle
+ *            collision occured.
+ *  @returns  true if such at least one occured,
+ *            false if none
+ */
 tBool
 isAnyCollision(void)
 {
@@ -186,12 +266,25 @@ isAnyCollision(void)
     return FALSE;
 }
 
+/*!
+ *  @brief    A procedure for drawing the ball
+ *            with the specified color.
+ *  @param color
+ *            A unsigned value 0-255 specifying a color.
+ */
 void
 overdrawBall(tU8 color)
 {
     lcdRect(ball.xPos, ball.yPos, ball.radius, ball.radius, color);
 }
 
+/*!
+ *  @brief    A procedure for drawing over all the
+ *            obstacles, that are in the in-game area, 
+ *            with the specified color.
+ *  @param color
+ *            A unsigned value 0-255 specifying a color.
+ */
 void
 overdrawObstacles(tU8 color)
 {
@@ -205,19 +298,28 @@ overdrawObstacles(tU8 color)
     }
 }
 
+/*!
+ *  @brief    A procedure for detecting a possible
+ *            collision and ending the game if such
+ *            occured.
+ */
 void
 detectCollisions(void)
 {
-    if (isAnyCollision()) 
+    if (isAnyCollision())
     {
         stopGame();
     }
 }
 
+/*!
+ *  @brief    A procedure for updating diods according
+ *            to the ball's position.
+ */
 void
 updateDiods(void)
 {
-    tU8 newRow = clamp(ball.yPos / pixelsPerDiodRow, 0, 7); 
+    tU8 newRow = clamp(ball.yPos / pixelsPerDiodRow, 0, 7);
     if (newRow == diodsRow) return;
 
     setPca9532Pin(diodsRow, 1);
@@ -227,6 +329,11 @@ updateDiods(void)
     diodsRow = newRow;
 }
 
+/*!
+ *  @brief    A procedure for actually moving the
+ *            ball in the specified direciont and 
+ *            detecting possible collisions afterwards.
+ */
 void
 moveBall(tU8 dir)
 {
@@ -260,6 +367,11 @@ moveBall(tU8 dir)
     detectCollisions();
 }
 
+/*!
+ *  @brief    A procedure for actually moving all
+ *            the obstacles, that are in the game area
+ *            and detecting possible collisions afterwards.
+ */
 void
 moveObstacles(void)
 {
@@ -276,6 +388,19 @@ moveObstacles(void)
     detectCollisions();
 }
 
+/*!
+ *  @brief    A procedure for moving the ball in
+ *            a certain direction, with a certain strength,
+ *            optionally updating the diods and finally
+ *            waiting some amount of time.
+ *  @param absoluteValue 
+ *            Absolute value of the move, is a base for
+ *            calculating the strength of move and a delay.
+ *  @param dir
+ *            Direction in which the ball will move.
+ *  @param update
+ *            tBool indicating if diods update is neccessary.
+ */
 void
 moveBallAndWait(tU16 absoluteValue, tU8 dir, tBool update)
 {
@@ -288,6 +413,15 @@ moveBallAndWait(tU16 absoluteValue, tU8 dir, tBool update)
     sleep(delay);
 }
 
+/*!
+ *  @brief    A procedure resonsible for a quick
+ *            diod-down-and-up animation.
+ *  @param delay
+ *            Delay between switching to nex row
+ *            of diods. Value inversly proportional
+ *            to the speed of the animation.
+ *            (common values between 20 and 100)
+ */
 void
 diodsShowOff(tU16 delay)
 {
@@ -307,8 +441,14 @@ diodsShowOff(tU16 delay)
     }
 }
 
+/*!
+ *  @brief    A procedure responsible for measuring
+ *            user's in-game time and periodically increasing
+ *            the difficulty level by speeding-up the obstacles.
+ *            Designed to be a separate process.
+ */
 void
-gameTimeProc(void *arg)
+gameTimeProc(void)
 {
     tU8 hoodlum = 0;
     while (isInProgress)
@@ -325,10 +465,16 @@ gameTimeProc(void *arg)
     osDeleteProcess();
 }
 
+/*!
+ *  @brief    A procedure responsible for reading
+ *            the X-axis of accelerometer and moving the
+ *            ball accordingly to the input value.
+ *            Designed to be a separate process.
+ */
 void
-accXCtrlProc(void *arg)
+accXCtrlProc(void)
 {
-	tS16 refXValue = getAnalogueInput1(ACCEL_X);
+    tS16 refXValue = getAnalogueInput1(ACCEL_X);
     while (isInProgress)
     {
         tS16 value = refXValue - getAnalogueInput1(ACCEL_X);
@@ -341,10 +487,16 @@ accXCtrlProc(void *arg)
     osDeleteProcess();
 }
 
+/*!
+ *  @brief    A procedure responsible for reading
+ *            the Y-axis of accelerometer and moving the
+ *            ball accordingly to the input value.
+ *            Designed to be a separate process. 
+ */
 void
-accYCtrlProc(void *arg)
+accYCtrlProc(void)
 {
-	tS16 refYValue = getAnalogueInput1(ACCEL_Y);
+    tS16 refYValue = getAnalogueInput1(ACCEL_Y);
     while (isInProgress)
     {
         tS16 value = refYValue - getAnalogueInput1(ACCEL_Y);
@@ -358,27 +510,41 @@ accYCtrlProc(void *arg)
     osDeleteProcess();
 }
 
+/*!
+ *  @brief    A procedure responsible for obstacles
+ *            movement, respawning and speed.
+ *            Designed to be a separate process. 
+ */
 void
-obstaclesCtrlProc(void *arg)
+obstaclesCtrlProc(void)
 {
+    sleep(500);
+
     while (isInProgress)
     {
-        sleep(obstacleDelay);
-        moveObstacles();
         fillObstacles();
+        moveObstacles();
+        sleep(obstacleDelay);
     }
 
     osDeleteProcess();
 }
 
+/*!
+ *  @brief    A procedure for initializing the scene
+ *            and the game state
+ */
 void
 initScene(void)
 {
     lcdColor(BLACK, WHITE);
     lcdClrscr();
 
-    tU16 heightMiddle = LCD_HEIGHT / 2; 
-    tU16 widthMiddle = LCD_HEIGHT / 2; 
+    gameTime = 0;
+    obstacleDelay = 200;
+
+    tU16 heightMiddle = LCD_HEIGHT / 2;
+    tU16 widthMiddle = LCD_HEIGHT / 2;
     ball.xPos = widthMiddle;
     ball.yPos = heightMiddle;
     ball.speed = 5;
@@ -394,20 +560,24 @@ initScene(void)
     overdrawBall(WHITE);
 }
 
+/*!
+ *  @brief    A procedure for displaying user's score
+ *            at the end of the game.
+ */
 static void
-scoreWindow(void)
+displayScoreWindow(void)
 {
     lcdRect(0, 45, 130, 40, WHITE);
     lcdGotoxy(45, 48);
     lcdPuts("SCORE");
 
-    int score = getScore();
-    int tempScore = score;
+    tU32 score = getScore();
+    tU32 tempScore = score;
     tU8 counter = 0;
     while(tempScore > 0)
     {
-    	tempScore /= 10;
-    	counter++;
+        counter++;
+        tempScore /= 10;
     }
     tU16 x = 65 - counter * 4;
 
@@ -417,6 +587,13 @@ scoreWindow(void)
     lcdPuts(buffer);
 }
 
+
+/*!
+ *  @brief    A procedure for starting a new game,
+ *            it creates all the processes needed for 
+ *            movement controll, obstacles movement and 
+ *            in-game-timer.
+ */
 void
 startGame(void)
 {
@@ -424,9 +601,6 @@ startGame(void)
     isInProgress = TRUE;
 
     tU8 error;
-
-    gameTime = 0;
-    obstacleDelay = 200;
     pca9532Present = pca9532Init();
     initScene();
     diodsShowOff(40);
@@ -443,14 +617,18 @@ startGame(void)
     osCreateProcess(gameTimeProc, gameTimeStack, GAME_TIME_STACK_SIZE, &pidGameTime, 2, NULL, &error);
     osStartProcess(pidGameTime, &error);
 
-    //while(isInProgress);
+    // while(isInProgress);
 }
 
+/*!
+ *  @brief    A procedure for stopping the game,
+ *            called on collisions or user's button click.
+ */
 void
 stopGame(void)
 {
     if (isInProgress == FALSE) return;
     isInProgress = FALSE;
     diodsShowOff(40);
-    scoreWindow();
+    displayScoreWindow();
 }
