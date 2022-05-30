@@ -446,9 +446,11 @@ diodsShowOff(tU16 delay)
  *            user's in-game time and periodically increasing
  *            the difficulty level by speeding-up the obstacles.
  *            Designed to be a separate process.
+ *  @param arg
+ *            Not used in this application
  */
 void
-gameTimeProc(void)
+gameTimeProc(void *arg)
 {
     tU8 hoodlum = 0;
     while (isInProgress)
@@ -470,9 +472,11 @@ gameTimeProc(void)
  *            the X-axis of accelerometer and moving the
  *            ball accordingly to the input value.
  *            Designed to be a separate process.
+ *  @param arg
+ *            Not used in this application
  */
 void
-accXCtrlProc(void)
+accXCtrlProc(void *arg)
 {
     tS16 refXValue = getAnalogueInput1(ACCEL_X);
     while (isInProgress)
@@ -491,10 +495,12 @@ accXCtrlProc(void)
  *  @brief    A procedure responsible for reading
  *            the Y-axis of accelerometer and moving the
  *            ball accordingly to the input value.
- *            Designed to be a separate process. 
+ *            Designed to be a separate process.
+ *  @param arg
+ *            Not used in this application
  */
 void
-accYCtrlProc(void)
+accYCtrlProc(void *arg)
 {
     tS16 refYValue = getAnalogueInput1(ACCEL_Y);
     while (isInProgress)
@@ -514,9 +520,11 @@ accYCtrlProc(void)
  *  @brief    A procedure responsible for obstacles
  *            movement, respawning and speed.
  *            Designed to be a separate process. 
+ *  @param arg
+ *            Not used in this application
  */
 void
-obstaclesCtrlProc(void)
+obstaclesCtrlProc(void *arg)
 {
     sleep(500);
 
