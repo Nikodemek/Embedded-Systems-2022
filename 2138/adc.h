@@ -46,7 +46,6 @@ delayMs(tU16 delayInMs);
  *    10-bit conversion result
  *
  ****************************************************************************/
-tU16 getAnalogueInput0(tU8 channel);
 tU16 getAnalogueInput1(tU8 channel);
 
 /*****************************************************************************
