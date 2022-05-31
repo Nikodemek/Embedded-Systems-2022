@@ -66,13 +66,13 @@ tU16
 getAnalogueInput1(tU8 channel)
 {
 	//start conversion now (for selected channel)
-	AD1CR = (AD1CR & 0xFFFFFF00) | (1 << channel) | (1 << 24);
+	AD1CR = (AD1CR & 0xFFFFFF00u) | (1 << channel) | (1 << 24);
 	
 	//wait til done
-	while((AD1DR & 0x80000000) == 0);
+	while((AD1DR & 0x80000000u) == 0);
 
 	//get result and adjust to 10-bit integer
-  return (AD1DR>>6) & 0x3FF;
+  return (AD1DR>>6) & 0x3FFu;
 }
 
 /*****************************************************************************

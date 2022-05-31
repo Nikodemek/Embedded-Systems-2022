@@ -15,8 +15,8 @@
 
 #define WHITE (tU8)0xFFu
 #define BLACK (tU8)0x00u
-#define LCD_HEIGHT 128
-#define LCD_WIDTH 128
+#define LCD_HEIGHT 130
+#define LCD_WIDTH 130
 
 void lcdInit(void);
 void lcdOff(void);

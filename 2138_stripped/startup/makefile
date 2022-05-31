@@ -7,7 +7,7 @@
 ##########################################################
 
 # Name of target (executable program or library) 
-NAME      = lpc2138_edu_board
+NAME      = libea_startup_thumb
 
 # Link program to RAM or ROM (possible values for LD_RAMROM is RAM or ROM,
 # if not specified = ROM)
@@ -30,7 +30,6 @@ CPU_VARIANT = LPC2138
 # It is possible to override the automatic linker file selection with the variable below.
 # No not use this opion unless you have very specific needs.
 #LD_SCRIPT = build_files/myOwnLinkScript_rom.ld
-LD_SCRIPT_PATH = 
 
 # ELF-file contains debug information, or not
 # (possible values for DEBUG are 0 or 1)
@@ -48,34 +47,27 @@ EFLAGS  = -mthumb-interwork
 
 # Program code run in ARM or THUMB mode
 # Can be [ARM | THUMB]
-CODE    = THUMB
+CODE    = ARM
 
 # List C source files here.
-CSRCS   = main.c          \
-          i2c.c           \
-          adc.c           \
-          pca9532.c       \
-          lcd.c           \
-          lcd_hw.c        \
-          key.c			  \
-          ball_game.c     \
+CSRCS   = consol.c \
+          framework.c
 
 # List assembler source files here
-ASRCS   = 
+ASRCS   = startup.S
 
 # List subdirectories to recursively invoke make in 
-SUBDIRS = startup
+SUBDIRS =
 
 # List additional libraries to link with
-LIBS    = startup/libea_startup_thumb.a \
-          pre_emptive_os/pre_emptive_os.a
+LIBS    =
 
 # Add include search paths
-INC     = -I ./startup
+INC     = -I .
 
 # Select if an executable program or a library shall be created
-PROGRAM_MK  = true
-#LIBRARY_MK  = true
+#PROGRAM_MK  = true
+LIBRARY_MK  = true
 
 # Output format on hex file (if making a program); can be [srec | ihex]
 # Only needed for executable program files
@@ -86,10 +78,10 @@ HEX_FORMAT  = ihex
 DOWNLOAD    = lpc21isp.exe
 
 # Configurations for download program
-DL_COMPORT  = com10
-DL_BAUDRATE = 115200
-DL_CRYSTAL  = 14745
+DL_COMPORT  = com1
+DL_BAUDRATE = 38400
+DL_CRYSTAL  = 12000
 
 #######################################################################
-include build_files/general.mk
+include ../build_files/general.mk
 #######################################################################

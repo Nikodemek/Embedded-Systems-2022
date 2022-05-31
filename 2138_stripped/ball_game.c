@@ -24,10 +24,9 @@
 #define OBSTACLES_CTRL_STACK_SIZE 512
 #define GAME_TIME_STACK_SIZE 128
 
-#define MAX_OBSTACLES 6 
+#define MAX_OBSTACLES 6
 #define MIN_INTERVAL 30
 
-#define NOTHING 0x00
 #define UP      0x01
 #define RIGHT   0x02
 #define DOWN    0x04
@@ -51,26 +50,26 @@ typedef struct Obstacle
     tU8 width;
 } Obstacle;
 
-static tU8 accXCtrlStack[ACC_X_CTRL_STACK_SIZE];
-static tU8 accYCtrlStack[ACC_Y_CTRL_STACK_SIZE];
-static tU8 obstaclesCtrlStack[OBSTACLES_CTRL_STACK_SIZE];
-static tU8 gameTimeStack[GAME_TIME_STACK_SIZE];
+tU8 accXCtrlStack[ACC_X_CTRL_STACK_SIZE];
+tU8 accYCtrlStack[ACC_Y_CTRL_STACK_SIZE];
+tU8 obstaclesCtrlStack[OBSTACLES_CTRL_STACK_SIZE];
+tU8 gameTimeStack[GAME_TIME_STACK_SIZE];
 
-static tU8 pidAccXCtrl;
-static tU8 pidAccYCtrl;
-static tU8 pidObstaclesCtrl;
-static tU8 pidGameTime;
+tU8 pidAccXCtrl;
+tU8 pidAccYCtrl;
+tU8 pidObstaclesCtrl;
+tU8 pidGameTime;
 
-static const tU8 pixelsPerDiodRow = (tU8)(LCD_HEIGHT / 8);
+const tU8 pixelsPerDiodRow = (tU8)(LCD_HEIGHT / 8);
 
-static volatile tU16 obstacleDelay = 200;
-static volatile tU8 diodsRow = 0;
-static volatile tBool isInProgress = FALSE;
-static volatile tU32 gameTime = 0;
-static volatile tBool pca9532Present = FALSE;
+volatile tU16 obstacleDelay = 200;
+volatile tU8 diodsRow = 0;
+volatile tBool isInProgress = FALSE;
+volatile tU32 gameTime = 0;
+volatile tBool pca9532Present = FALSE;
 
-static Ball ball;
-static Obstacle obstacles[MAX_OBSTACLES];
+Ball ball;
+Obstacle obstacles[MAX_OBSTACLES];
 
 /*!
  *  @brief    A procedure for delaying the execution
@@ -158,7 +157,7 @@ calculateDelay(tU16 strength)
 tU32
 getScore(void)
 {
-    return gameTime - (gameTime % 10);
+    return gameTime / 10 * 10;
 }
 
 /*!
@@ -170,7 +169,7 @@ getScore(void)
  *            the collision check shall happen.
  *  @returns  true if collisions occured, false if it did not
  */
-static tBool
+tBool
 isCollision(Obstacle *obstacle)
 {
     tU8 ballRadius = ball.radius;
@@ -198,7 +197,7 @@ isCollision(Obstacle *obstacle)
  *            A pointer to the obstacle object
  *            to be randomized.
  */
-static void
+void
 randomizeObstacle(Obstacle *obstacle)
 {
     tU8 newWidth = (tU8)random(20, 60);
@@ -223,7 +222,7 @@ randomizeObstacle(Obstacle *obstacle)
  *            it randomizes it's properties and moves it
  *            to the top.
  */
-static void
+void
 fillObstacles(void)
 {
     tU16 minY = LCD_HEIGHT;
@@ -251,7 +250,7 @@ fillObstacles(void)
  *  @returns  true if such at least one occured,
  *            false if none
  */
-static tBool
+tBool
 isAnyCollision(void)
 {
     tU8 i;
@@ -269,7 +268,7 @@ isAnyCollision(void)
  *  @param color
  *            A unsigned value 0-255 specifying a color.
  */
-static void
+void
 overdrawBall(tU8 color)
 {
     lcdRect(ball.xPos, ball.yPos, ball.radius, ball.radius, color);
@@ -282,7 +281,7 @@ overdrawBall(tU8 color)
  *  @param color
  *            A unsigned value 0-255 specifying a color.
  */
-static void
+void
 overdrawObstacles(tU8 color)
 {
     tU8 i;
@@ -300,7 +299,7 @@ overdrawObstacles(tU8 color)
  *            collision and ending the game if such
  *            occured.
  */
-static void
+void
 detectCollisions(void)
 {
     if (isAnyCollision())
@@ -313,7 +312,7 @@ detectCollisions(void)
  *  @brief    A procedure for updating diods according
  *            to the ball's position.
  */
-static void
+void
 updateDiods(void)
 {
     tU8 newRow = clamp(ball.yPos / pixelsPerDiodRow, 0, 7);
@@ -331,7 +330,7 @@ updateDiods(void)
  *            ball in the specified direciont and 
  *            detecting possible collisions afterwards.
  */
-static void
+void
 moveBall(tU8 dir)
 {
     tBool moved = TRUE;
@@ -369,7 +368,7 @@ moveBall(tU8 dir)
  *            the obstacles, that are in the game area
  *            and detecting possible collisions afterwards.
  */
-static void
+void
 moveObstacles(void)
 {
     overdrawObstacles(BLACK);
@@ -398,7 +397,7 @@ moveObstacles(void)
  *  @param update
  *            tBool indicating if diods update is neccessary.
  */
-static void
+void
 moveBallAndWait(tU16 absoluteValue, tU8 dir, tBool update)
 {
     tU16 strength = calculateStrength(absoluteValue);
@@ -419,7 +418,7 @@ moveBallAndWait(tU16 absoluteValue, tU8 dir, tBool update)
  *            to the speed of the animation.
  *            (common values between 20 and 100)
  */
-static void
+void
 diodsShowOff(tU16 delay)
 {
     if (pca9532Present == FALSE) pca9532Present = pca9532Init();
@@ -446,7 +445,7 @@ diodsShowOff(tU16 delay)
  *  @param arg
  *            Not used in this application
  */
-static void
+void
 gameTimeProc(void *arg)
 {
     tU8 hoodlum = 0;
@@ -472,7 +471,7 @@ gameTimeProc(void *arg)
  *  @param arg
  *            Not used in this application
  */
-static void
+void
 accXCtrlProc(void *arg)
 {
     tS16 refXValue = getAnalogueInput1(ACCEL_X);
